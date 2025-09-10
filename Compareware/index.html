@@ -1,0 +1,802 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompareWare - Comparador de Periféricos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00b4d8;
+            --dark: #212121;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+        }
+
+        .hero {
+            background: var(--primary);
+            padding: 4rem 2rem;
+            color: white;
+        }
+        
+        .product-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .header {
+            background: var(--dark);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: var(--dark);
+            color: var(--light);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            font-size: 1.1rem;
+        }
+
+        .comparison-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            background: var(--dark);
+            color: var(--light);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+        }
+
+        .compare-btn {
+            background: var(--primary);
+            color: var(--light);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+            margin-top: 2rem;
+        }
+
+        .compare-btn:hover {
+            background: #0096b4;
+        }
+
+        .specs-table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: collapse;
+        }
+
+        .specs-table td, .specs-table th {
+            padding: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .specs-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .availability-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .status-available {
+            background: #28a745;
+        }
+
+        .status-limited {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-unavailable {
+            background: #dc3545;
+        }
+
+        .auth-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .auth-form {
+            background: rgba(33, 33, 33, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            min-width: 300px;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--primary);
+            background: var(--dark);
+            color: var(--light);
+            border-radius: 5px;
+        }
+
+        .auth-buttons button {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--light);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 0.5rem;
+        }
+
+        .auth-buttons button:hover {
+            background: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .comparison-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+    <header class="header">
+        <a href= "about.html" class="logo">CompareWare</a>
+        
+        <div class="auth-container">
+            <div class="auth-buttons">
+                <button onclick="window.location.href='login.html'">Iniciar Sesión</button>
+                <button onclick="window.location.href='register.html'">Registrarse</button>
+            </div>
+            
+            <form id="loginForm" class="auth-form">
+                <h3>Iniciar Sesión</h3>
+                <div class="form-group">
+                    <label for="loginEmail">Correo</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="compare-btn">Entrar</button>
+            </form>
+
+            <form id="registerForm" class="auth-form">
+                <h3>Registrarse</h3>
+                <div class="form-group">
+                    <label for="regUsername">Nombre de Usuario</label>
+                    <input type="text" id="regUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Correo</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Contraseña</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <button type="submit" class="compare-btn">Registrarse</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="container py-4">
+        <section class="hero rounded">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>TU DECISIÓN, NUESTRA COMPARACIÓN</h1>
+                    <p class="lead">Tu comparador de periféricos de confianza</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="D:\8 Semestre\Programación WEB\Compareware\img\descarga.jpeg" class="img-fluid rounded" alt="Gaming Setup">
+                </div>
+            </div>
+        </section>
+
+        <div class="my-4">
+            <select class="form-select form-select-lg" id="categorySelect">
+                <option value="">Selecciona una categoría</option>
+                <option value="headphones">Audífonos</option>
+                <option value="microphones">Micrófonos</option>
+                <option value="monitors">Monitores</option>
+                <option value="mice">Ratones</option>
+                <option value="keyboards">Teclados</option>
+                <option value="printers">Impresoras</option>
+            </select>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card bg-dark border-primary">
+                    <div class="card-body">
+                        <h2 class="card-title">Producto 1</h2>
+                        <select class="form-select mb-3" id="product1">
+                            <option value="">Selecciona un producto</option>
+                        </select>
+                        <div id="specs1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card bg-dark border-primary">
+                    <div class="card-body">
+                        <h2 class="card-title">Producto 2</h2>
+                        <select class="form-select mb-3" id="product2">
+                            <option value="">Selecciona un producto</option>
+                        </select>
+                        <div id="specs2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const products = {
+            headphones: {
+                sonyWH1000XM4: {
+                    name: "Sony WH-1000XM4",
+                    brand: "Sony",
+                    price: "MXN 6,972",
+                    type: "Over-ear",
+                    connectivity: "Bluetooth, NFC",
+                    quality: "Alta",
+                    features: "Cancelación de ruido líder en el mercado",
+                    compatibility: "Universal",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                boseQC45: {
+                    name: "Bose QuietComfort 45",
+                    brand: "Bose", 
+                    price: "MXN 6,554",
+                    type: "Over-ear",
+                    connectivity: "Bluetooth, NFC",
+                    quality: "Alta",
+                    features: "Excelente comodidad y sonido",
+                    compatibility: "Universal",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                airpodsPro: {
+                    name: "Apple AirPods Pro",
+                    brand: "Apple",
+                    price: "MXN 4,963",
+                    type: "In-ear",
+                    connectivity: "Bluetooth",
+                    quality: "Alta",
+                    features: "Integración perfecta con dispositivos Apple",
+                    compatibility: "Universal (Óptimo con Apple)",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                sennheiserHD450BT: {
+                    name: "Sennheiser HD 450BT",
+                    brand: "Sennheiser",
+                    price: "MXN 3,968",
+                    type: "Over-ear",
+                    connectivity: "Bluetooth, NFC",
+                    quality: "Alta",
+                    features: "Buen equilibrio entre precio y calidad",
+                    compatibility: "Universal",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                jabraElite85h: {
+                    name: "Jabra Elite 85h",
+                    brand: "Jabra",
+                    price: "MXN 4,980",
+                    type: "Over-ear",
+                    connectivity: "Bluetooth, NFC",
+                    quality: "Alta",
+                    features: "Gran duración de batería y resistencia al agua",
+                    compatibility: "Universal",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            },
+            monitors: {
+                dellU2720Q: {
+                    name: "Dell UltraSharp U2720Q",
+                    brand: "Dell",
+                    price: "MXN 11,952",
+                    connectivity: "HDMI, DisplayPort, USB-C",
+                    quality: "Alta",
+                    features: "Resolución 4K y excelente precisión de color",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                lg27GN950B: {
+                    name: "LG 27GN950-B",
+                    brand: "LG",
+                    price: "MXN 15,936",
+                    connectivity: "HDMI, DisplayPort, USB-C",
+                    quality: "Alta",
+                    features: "Monitor gaming 4K con alta tasa de refresco",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                asusProArt: {
+                    name: "ASUS ProArt PA278QV",
+                    brand: "ASUS",
+                    price: "MXN 6,972",
+                    connectivity: "HDMI, DisplayPort, USB-C",
+                    quality: "Alta",
+                    features: "Ideal para diseño gráfico y edición de video",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                samsungOdysseyG7: {
+                    name: "Samsung Odyssey G7",
+                    brand: "Samsung",
+                    price: "MXN 13,944",
+                    connectivity: "HDMI, DisplayPort",
+                    quality: "Alta",
+                    features: "Curvatura 1000R y alta tasa de refresco",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                benqPD2700U: {
+                    name: "BenQ PD2700U",
+                    brand: "BenQ",
+                    price: "MXN 9,960",
+                    connectivity: "HDMI, DisplayPort, USB-C",
+                    quality: "Alta",
+                    features: "Excelente para profesionales creativos",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            },
+            mice: {
+                logitechMX3: {
+                    name: "Logitech MX Master 3",
+                    brand: "Logitech",
+                    price: "MXN 1,973",
+                    connectivity: "Bluetooth, USB",
+                    quality: "Alta",
+                    features: "Ergonomía y personalización avanzada",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                razerDeathAdder: {
+                    name: "Razer DeathAdder V2",
+                    brand: "Razer",
+                    price: "MXN 1,375",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Popular entre gamers por su precisión",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                steelseriesRival: {
+                    name: "SteelSeries Rival 600",
+                    brand: "SteelSeries",
+                    price: "MXN 1,575",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Sensor dual y personalización de peso",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                corsairDarkCore: {
+                    name: "Corsair Dark Core RGB Pro",
+                    brand: "Corsair",
+                    price: "MXN 1,775",
+                    connectivity: "Bluetooth, USB",
+                    quality: "Alta",
+                    features: "Conectividad inalámbrica y cableada",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                surfaceMouse: {
+                    name: "Microsoft Surface Mouse",
+                    brand: "Microsoft",
+                    price: "MXN 975",
+                    connectivity: "Bluetooth",
+                    quality: "Media-Alta",
+                    features: "Diseño minimalista y buena conectividad",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            },
+            keyboards: {
+                logitechG915: {
+                    name: "Logitech G915 TKL",
+                    brand: "Logitech",
+                    price: "MXN 4,563",
+                    connectivity: "Bluetooth, USB",
+                    quality: "Alta",
+                    features: "Mecánico inalámbrico con iluminación RGB",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                razerBlackwidow: {
+                    name: "Razer BlackWidow V3 Pro",
+                    brand: "Razer",
+                    price: "MXN 4,563",
+                    connectivity: "Bluetooth, USB",
+                    quality: "Alta",
+                    features: "Mecánico inalámbrico con switches Razer",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                corsairK95: {
+                    name: "Corsair K95 RGB Platinum XT",
+                    brand: "Corsair",
+                    price: "MXN 3,963",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Mecánico con macros dedicados y RGB",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                steelseriesApex: {
+                    name: "SteelSeries Apex Pro",
+                    brand: "SteelSeries",
+                    price: "MXN 3,963",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Switches ajustables y pantalla OLED",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                keychron: {
+                    name: "Keychron K6",
+                    brand: "Keychron",
+                    price: "MXN 1,375",
+                    connectivity: "Bluetooth, USB",
+                    quality: "Media-Alta",
+                    features: "Mecánico compacto y personalizable",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            },
+            printers: {
+                hpOfficejet: {
+                    name: "HP OfficeJet Pro 9015e",
+                    brand: "HP",
+                    price: "MXN 4,563",
+                    connectivity: "Wi-Fi, Ethernet, USB",
+                    quality: "Alta",
+                    features: "Multifuncional con impresión a doble cara",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                canonPixma: {
+                    name: "Canon PIXMA TR8620",
+                    brand: "Canon",
+                    price: "MXN 3,563",
+                    connectivity: "Wi-Fi, Ethernet, USB",
+                    quality: "Alta",
+                    features: "Excelente para fotos y documentos",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                epsonEcoTank: {
+                    name: "Epson EcoTank ET-4760",
+                    brand: "Epson",
+                    price: "MXN 9,936",
+                    connectivity: "Wi-Fi, Ethernet, USB",
+                    quality: "Alta",
+                    features: "Sistema de tinta recargable y económico",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                brotherHL: {
+                    name: "Brother HL-L2350DW",
+                    brand: "Brother",
+                    price: "MXN 2,373",
+                    connectivity: "Wi-Fi, USB",
+                    quality: "Media-Alta",
+                    features: "Impresora láser monocromática compacta",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                samsungXpress: {
+                    name: "Samsung Xpress M2070FW",
+                    brand: "Samsung",
+                    price: "MXN 3,963",
+                    connectivity: "Wi-Fi, USB",
+                    quality: "Media-Alta",
+                    features: "Multifuncional láser con buena relación calidad-precio",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            },
+            microphones: {
+                blueYeti: {
+                    name: "Blue Yeti",
+                    brand: "Blue",
+                    price: "MXN 2,569",
+                    type: "Condensador USB",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Popular entre streamers y podcasters",
+                    patternModes: "4 patrones polares",
+                    sampleRate: "48kHz/16-bit",
+                    compatibility: "Windows, macOS",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                shureSM7B: {
+                    name: "Shure SM7B",
+                    brand: "Shure",
+                    price: "MXN 7,948",
+                    type: "Dinámico XLR",
+                    connectivity: "XLR",
+                    quality: "Alta",
+                    features: "Calidad de estudio profesional",
+                    patternModes: "Cardioide",
+                    frequency: "50 Hz - 20 kHz",
+                    compatibility: "Interfaces XLR",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                rodeNTUSB: {
+                    name: "Rode NT-USB",
+                    brand: "Rode",
+                    price: "MXN 3,365",
+                    type: "Condensador USB",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Fácil de usar y excelente calidad de sonido",
+                    patternModes: "Cardioide",
+                    sampleRate: "48kHz/16-bit",
+                    compatibility: "Windows, macOS",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                at2020: {
+                    name: "Audio-Technica AT2020",
+                    brand: "Audio-Technica",
+                    price: "MXN 1,973",
+                    type: "Condensador XLR",
+                    connectivity: "XLR",
+                    quality: "Media-Alta",
+                    features: "Buena opción para principiantes",
+                    patternModes: "Cardioide",
+                    frequency: "20 Hz - 20 kHz",
+                    compatibility: "Interfaces XLR",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                },
+                hyperxQuadcast: {
+                    name: "HyperX QuadCast",
+                    brand: "HyperX",
+                    price: "MXN 2,768",
+                    type: "Condensador USB",
+                    connectivity: "USB",
+                    quality: "Alta",
+                    features: "Ideal para gaming y streaming",
+                    patternModes: "4 patrones polares",
+                    sampleRate: "48kHz/16-bit",
+                    compatibility: "Windows, macOS",
+                    availability: "Disponible",
+                    availability_class: "status-available"
+                }
+            }
+        };
+
+        function updateProductSelects(category) {
+            const selects = [document.getElementById('product1'), document.getElementById('product2')];
+            selects.forEach(select => {
+                select.innerHTML = '<option value="">Selecciona un producto</option>';
+                if (category && products[category]) {
+                    for (let key in products[category]) {
+                        select.innerHTML += `<option value="${key}">${products[category][key].name}</option>`;
+                    }
+                }
+            });
+            document.getElementById('specs1').innerHTML = '';
+            document.getElementById('specs2').innerHTML = '';
+        }
+
+        function createSpecsTable(product) {
+            if (!product) return '';
+            
+            const specTranslations = {
+                name: "Nombre",
+                brand: "Marca",
+                price: "Precio",
+                type: "Tipo",
+                connectivity: "Conectividad",
+                quality: "Calidad",
+                features: "Características",
+                patternModes: "Modos de patrón",
+                sampleRate: "Tasa de muestreo",
+                frequency: "Frecuencia",
+                compatibility: "Compatibilidad",
+                availability: "Disponibilidad"
+            };
+            
+            let tableHtml = '<table class="specs-table">';
+            for (let spec in product) {
+                if (spec !== 'availability_class') {
+                    let value = product[spec];
+                    if (spec === 'availability') {
+                        value = `<span class="availability-status ${product.availability_class}">${value}</span>`;
+                    }
+                    const translatedSpec = specTranslations[spec] || spec;
+                    tableHtml += `
+                        <tr>
+                            <td>${translatedSpec}</td>
+                            <td>${value}</td>
+                        </tr>
+                    `;
+                }
+            }
+            tableHtml += '</table>';
+            return tableHtml;
+        }
+
+        function compareProducts() {
+            const category = document.getElementById('categorySelect').value;
+            const product1 = document.getElementById('product1').value;
+            const product2 = document.getElementById('product2').value;
+            
+            if (category && product1 && product2) {
+                document.getElementById('specs1').innerHTML = createSpecsTable(products[category][product1]);
+                document.getElementById('specs2').innerHTML = createSpecsTable(products[category][product2]);
+                
+                // Aquí se guardaría la comparación en la base de datos si el usuario está autenticado
+                try {
+                    // Ejemplo de cómo se guardaría la comparación
+                    const comparisonData = {
+                        userId: 'current_user_id', // Se obtendría del estado de la sesión
+                        product1Id: product1,
+                        product2Id: product2,
+                        category: category
+                    };
+                    console.log('Guardando comparación:', comparisonData);
+                } catch (error) {
+                    console.error('Error al guardar la comparación:', error);
+                }
+            } else {
+                alert('Por favor selecciona una categoría y dos productos para comparar');
+            }
+        }
+
+        document.getElementById('categorySelect').addEventListener('change', function() {
+            updateProductSelects(this.value);
+        });
+
+        document.getElementById('product1').addEventListener('change', function() {
+            const category = document.getElementById('categorySelect').value;
+            if (category && this.value) {
+                document.getElementById('specs1').innerHTML = createSpecsTable(products[category][this.value]);
+            }
+        });
+
+        document.getElementById('product2').addEventListener('change', function() {
+            const category = document.getElementById('categorySelect').value;
+            if (category && this.value) {
+                document.getElementById('specs2').innerHTML = createSpecsTable(products[category][this.value]);
+            }
+        });
+
+        // Nuevas funciones para manejar la autenticación
+        function toggleForm(formType) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (formType === 'login') {
+                loginForm.classList.toggle('active');
+                registerForm.classList.remove('active');
+            } else {
+                registerForm.classList.toggle('active');
+                loginForm.classList.remove('active');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                // Aquí iría la lógica para conectar con el backend
+                console.log('Iniciando sesión:', { email, password });
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error);
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                // Aquí iría la lógica para conectar con el backend
+                console.log('Registrando usuario:', { username, email, password });
+            } catch (error) {
+                console.error('Error al registrar:', error);
+            }
+        });
+
+        // Cerrar formularios al hacer clic fuera de ellos
+        document.addEventListener('click', function(e) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const authContainer = document.querySelector('.auth-container');
+            
+            if (!authContainer.contains(e.target)) {
+                loginForm.classList.remove('active');
+                registerForm.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
