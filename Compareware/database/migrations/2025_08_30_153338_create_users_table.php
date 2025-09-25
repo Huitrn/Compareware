@@ -16,6 +16,7 @@ public function up()
         $table->string('name');
         $table->string('email')->unique();
         $table->string('password');
+        $table->string('role')->default('user'); // <-- Aquí después de los campos principales
         $table->timestamps();
     });
 }

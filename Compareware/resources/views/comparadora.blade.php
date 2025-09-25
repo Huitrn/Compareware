@@ -33,7 +33,6 @@
           </a>
         </div>
         <nav class="flex items-center gap-6">
-          <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="#">Inicio</a>
           <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="#">Marcas</a>
           <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="#">Contacto</a>
         </nav>
