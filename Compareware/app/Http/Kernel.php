@@ -34,6 +34,6 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
-        // Otros middlewares...
+        'simular.auth' => \App\Http\Middleware\SimularAuth::class,
     ];
 }

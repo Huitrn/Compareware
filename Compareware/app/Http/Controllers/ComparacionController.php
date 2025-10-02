@@ -35,4 +35,14 @@ class ComparacionController extends Controller
             'comparacion' => $comparacion ? $comparacion->descripcion : null
         ]);
     }
+     public function compararDosProductos($id1, $id2)
+    {
+        return response()->json([
+            'mensaje' => 'Comparando dos productos',
+            'producto_1' => $id1,
+            'producto_2' => $id2,
+            'tipo_comparacion' => 'directa',
+            'url_comparacion' => "/comparar/{$id1}/{$id2}"
+        ]);
+    }
 }
