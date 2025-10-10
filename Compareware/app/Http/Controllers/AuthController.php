@@ -14,7 +14,7 @@ class AuthController extends Controller
             'name' => $request->name ?? 'SinNombre',
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'user'
+            'role' => 'user' // Siempre 'user' por defecto, sin aceptar desde request
         ]);
         return response()->json($user, 201);
     }

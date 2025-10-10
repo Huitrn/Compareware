@@ -26,27 +26,28 @@
                 ></path>
               </svg>
             </div>
-            <a href="{{ route('welcome') }}" class="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
+            <a href="{{ route('home') }}" class="logo-link text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
             CompareWare
             </a>
           </div>
           <div class="flex flex-1 justify-end gap-8">
             <div class="flex items-center gap-9">
-              <a class="text-[#0d141c] text-sm font-medium leading-normal" href="#">Inicio</a>
-              <a class="text-[#0d141c] text-sm font-medium leading-normal" href="#">Marca</a>
-              <a class="text-[#0d141c] text-sm font-medium leading-normal" href="#">Contacto</a>
+              <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="{{ route('home') }}">Inicio</a>
+              <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="{{ route('marcas') }}">Marcas</a>
+              <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="#">Contacto</a>
             </div>
-                        <button
-                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-              >
-                <div class="text-[#0d141c]" data-icon="Sun" data-size="20px" data-weight="regular">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                    <path
-                      d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"
-                    ></path>
-                  </svg>
-                </div>
-              </button>
+            <button
+              id="theme-toggle"
+              class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+            >
+              <div class="text-[#0d141c]" data-icon="Sun" data-size="20px" data-weight="regular">
+                <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                  <path
+                    d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"
+                  ></path>
+                </svg>
+              </div>
+            </button>
           <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
           style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCtVmO1pZu8P7jfJrUU-QY-bu3xMdiiGglWQv2sFdbUf2mVR_jaSHPqiEz-_sKzgHAcTeVDNKXNbgElLb6UWzQPzYNKD_iWvUHEzpwrVfA_-a19Eho9V_D3T0n_Le-uwc6e6ZcrCm-7ZwGqCRWKpgvr35ka35mr5MnJpKAWmhBJD9avopCYM4KZnC7VIyBAsJwB8pztwQg-ZzAWjcORcwiFtIPgGllelTJO7trBV3T8DcTOoGn5KC0M_oFjf2Rp-MMoa0ZBCcNIZKvm");'>
         </header>
@@ -104,5 +105,6 @@
         </div>
       </div>
     </div>
+    <script src="{{ asset('js/theme-switcher.js') }}"></script>
   </body>
 </html>

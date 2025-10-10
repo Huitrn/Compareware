@@ -28,12 +28,12 @@
     <header id="main-header" class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#233648] px-10 py-3 bg-[#111a22] shadow-lg">
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-4">
-          <a href="{{ route('welcome') }}" class="logo-link text-black text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
+          <a href="{{ route('home') }}" class="logo-link text-black text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
             CompareWare
           </a>
         </div>
         <nav class="flex items-center gap-6">
-          <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="#">Marcas</a>
+          <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="{{ route('marcas') }}">Marcas</a>
           <a class="nav-link text-black text-sm font-medium leading-normal hover:underline" href="#">Contacto</a>
         </nav>
       </div>
@@ -370,7 +370,7 @@
         });
 
         // Logo
-        const logoUrl = "{{ route('welcome') }}";
+        const logoUrl = "{{ route('home') }}";
         const logo = document.querySelector(`.logo-link[href='${logoUrl}']`);
         if (logo) {
           logo.classList.remove('text-white', 'text-black');
