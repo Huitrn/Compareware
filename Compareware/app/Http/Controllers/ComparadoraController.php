@@ -3,18 +3,104 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\SecurityLogger;
+use Illuminate\Support\Facades\Log;
 
 class ComparadoraController extends Controller
 {
-    // Método para mostrar usuario por ID
+    protected SecurityLogger $securityLogger;
+
+    public function __construct(SecurityLogger $securityLogger)
+    {
+        $this->securityLogger = $securityLogger;
+        
+        // Aplicar middlewares de seguridad
+        $this->middleware(['sql.security:strict', 'rate.limit']);
+    }
+
+    /**
+     * Sanitizar input para prevenir SQL injection y XSS
+     */
+    private function sanitizeInput($input): string
+    {
+        if (is_null($input)) {
+            return '';
+        }
+
+        $input = (string) $input;
+
+        // Detectar y remover patrones peligrosos
+        $dangerous_patterns = [
+            '/[\'";\\\\]/',           // Comillas y backslashes
+            '/\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b/i',
+            '/(-{2,}|\/\*|\*\/|\#)/', // Comentarios SQL
+            '/<[^>]*>/',              // Tags HTML
+            '/javascript:/i',          // JavaScript
+            '/on\w+\s*=/i',           // Event handlers
+        ];
+
+        $originalInput = $input;
+        foreach ($dangerous_patterns as $pattern) {
+            $input = preg_replace($pattern, '', $input);
+        }
+
+        // Log si se detecta intento malicioso
+        if ($input !== $originalInput) {
+            $this->securityLogger->logSecurityEvent('MALICIOUS_INPUT_DETECTED', [
+                'controller' => 'ComparadoraController',
+                'original_input' => $originalInput,
+                'sanitized_input' => $input,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ], 'HIGH');
+        }
+
+        return trim($input);
+    }
+
+    /**
+     * Validar entrada numérica
+     */
+    private function validateNumeric($input): ?int
+    {
+        if (is_null($input) || $input === '') {
+            return null;
+        }
+
+        // Solo permitir números
+        if (!is_numeric($input) || $input < 0 || $input > 999999) {
+            $this->securityLogger->logSecurityEvent('INVALID_NUMERIC_INPUT', [
+                'input' => $input,
+                'ip' => request()->ip()
+            ], 'MEDIUM');
+            return null;
+        }
+
+        return (int) $input;
+    }
+    // Método para mostrar usuario por ID - SEGURO
     public function mostrarUsuario($id)
     {
-        // Aquí podrías consultar la base de datos
-        // $usuario = User::find($id);
+        // Validar que el ID sea un número entero positivo
+        if (!is_numeric($id) || $id <= 0 || $id > 999999) {
+            $this->securityLogger->logSecurityEvent('INVALID_USER_ID', [
+                'provided_id' => $id,
+                'ip' => request()->ip()
+            ], 'MEDIUM');
+
+            return response()->json(['error' => 'Invalid user ID'], 400);
+        }
+
+        $validatedId = (int) $id;
+
+        $this->securityLogger->logSecurityEvent('USER_PROFILE_ACCESS', [
+            'user_id' => $validatedId,
+            'ip' => request()->ip()
+        ], 'LOW');
         
         return response()->json([
             'mensaje' => 'Mostrando usuario',
-            'id_usuario' => $id,
+            'id_usuario' => $validatedId,
             'url_completa' => request()->url()
         ]);
     }
@@ -29,14 +115,14 @@ class ComparadoraController extends Controller
         ]);
     }
 
-    // Método para buscar productos con query parameters
-    public function buscarProductos(Request $request)
+    // Método con parámetros de consulta (query parameters) - SEGURO
+    public function buscarPorFiltros(Request $request)
     {
-        // Obtener parámetros de query
-        $categoria = $request->query('categoria');
-        $marca = $request->query('marca');
-        $precio_min = $request->query('precio_min');
-        $precio_max = $request->query('precio_max');
+        // Validar y sanitizar todos los inputs
+        $categoria = $this->sanitizeInput($request->query('categoria'));
+        $marca = $this->sanitizeInput($request->query('marca'));
+        $precio_min = $this->validateNumeric($request->query('precio_min'));
+        $precio_max = $this->validateNumeric($request->query('precio_max'));
         
         return response()->json([
             'mensaje' => 'Búsqueda de productos',

@@ -1,0 +1,417 @@
+{
+  "info": {
+    "name": "SQL Injection Security Tests",
+    "description": "Colección completa para probar la protección contra inyecciones SQL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🚨 Authentication SQL Injection Tests",
+      "item": [
+        {
+          "name": "Login - Basic SQL Injection Bypass",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block SQL injection in login', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "    pm.expect(pm.response.json()).to.have.property('error');",
+                  "    pm.expect(pm.response.json().error).to.equal('INVALID_INPUT_DATA');",
+                  "});",
+                  "",
+                  "pm.test('Should not return user data', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.have.property('token');",
+                  "    pm.expect(response).to.not.have.property('user');",
+                  "});",
+                  "",
+                  "pm.test('Response time should be reasonable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com' OR '1'='1' --\",\n  \"password\": \"cualquier_cosa\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - UNION SQL Injection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block UNION injection', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Should not expose database structure', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(JSON.stringify(response)).to.not.include('password');",
+                  "    pm.expect(JSON.stringify(response)).to.not.include('users');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@test.com' UNION SELECT id,email,password FROM users --\",\n  \"password\": \"test\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register - DROP TABLE Attack",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block DROP TABLE injection', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Should detect dangerous keywords', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.details).to.be.an('array');",
+                  "    const details = response.details.join(' ').toLowerCase();",
+                  "    pm.expect(details).to.include('drop');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacker'; DROP TABLE users; --\",\n  \"email\": \"test@evil.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔥 Advanced SQL Injection Tests",
+      "item": [
+        {
+          "name": "Time-Based Blind SQL Injection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block time-based injection', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response time should not be delayed', function () {",
+                  "    // Si fuera vulnerable, tardaría 5000ms",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@test.com'; IF (1=1) WAITFOR DELAY '00:00:05' --\",\n  \"password\": \"test\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Order Creation - SQL Injection in Parameters",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Obtener token válido primero",
+                  "pm.globals.set('auth_token', pm.environment.get('valid_token') || 'dummy_token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block SQL injection in order data', function () {",
+                  "    // Puede ser 400 (bloqueado) o 401 (sin token válido)",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 400) {",
+                  "    pm.test('Should sanitize malicious input', function () {",
+                  "        const response = pm.response.json();",
+                  "        pm.expect(response.error).to.equal('INVALID_INPUT_DATA');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderData\": {\n    \"user_id\": \"1'; DROP TABLE orders; --\",\n    \"total_amount\": 100.00,\n    \"shipping_address\": \"123 Test St\",\n    \"payment_method\": \"credit_card\"\n  },\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1,\n      \"unit_price\": 100.00\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Protection Validation Tests",
+      "item": [
+        {
+          "name": "Valid Login - Should Work",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Valid login should work', function () {",
+                  "    // Puede ser 200 (éxito) o 401 (credenciales inválidas)",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "",
+                  "pm.test('Should not block legitimate requests', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.error).to.not.equal('INVALID_INPUT_DATA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@test.com\",\n  \"password\": \"validpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Edge Cases - Special Characters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should handle special characters safely', function () {",
+                  "    // Caracteres especiales legítimos deben ser sanitizados, no bloqueados",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 400) {",
+                  "    pm.test('Should provide helpful error message', function () {",
+                  "        const response = pm.response.json();",
+                  "        pm.expect(response).to.have.property('message');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"José María O'Connor\",\n  \"email\": \"jose.o'connor@test.com\",\n  \"password\": \"validpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔍 Parameter Testing",
+      "item": [
+        {
+          "name": "GET Route Parameter Injection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should block SQL injection in route parameters', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401, 404]);",
+                  "});",
+                  "",
+                  "pm.test('Should not expose database errors', function () {",
+                  "    const response = pm.response.json();",
+                  "    const responseText = JSON.stringify(response).toLowerCase();",
+                  "    pm.expect(responseText).to.not.include('syntax error');",
+                  "    pm.expect(responseText).to.not.include('postgresql');",
+                  "    pm.expect(responseText).to.not.include('column');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/1' OR '1'='1/history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "1' OR '1'='1", "history"]
+            }
+          }
+        },
+        {
+          "name": "Query Parameter Injection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should sanitize query parameters', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 401]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Should not return unauthorized data', function () {",
+                  "        const response = pm.response.json();",
+                  "        // Verificar que no se ejecutó la inyección",
+                  "        pm.expect(response).to.not.have.property('password');",
+                  "        pm.expect(response).to.not.have.property('users');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders?search=' UNION SELECT * FROM users--&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "' UNION SELECT * FROM users--"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ]
+}

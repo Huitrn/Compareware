@@ -127,6 +127,47 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // 🛡️ CANALES DE SEGURIDAD PERSONALIZADOS
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 90, // Mantener logs de seguridad por 3 meses
+            'replace_placeholders' => true,
+        ],
+
+        'critical' => [
+            'driver' => 'daily', 
+            'path' => storage_path('logs/critical.log'),
+            'level' => 'critical',
+            'days' => 365, // Mantener eventos críticos por 1 año
+            'replace_placeholders' => true,
+        ],
+
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'), 
+            'level' => 'info',
+            'days' => 180, // Mantener auditoría por 6 meses
+            'replace_placeholders' => true,
+        ],
+
+        'sql_injection' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sql_injection.log'),
+            'level' => 'warning',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'rate_limiting' => [
+            'driver' => 'daily', 
+            'path' => storage_path('logs/rate_limiting.log'),
+            'level' => 'warning',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

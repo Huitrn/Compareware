@@ -46,4 +46,41 @@ const requireAuthentication = (req, res, next) => {
   }
 };
 
-module.exports = requireAuthentication;
+// Middleware específico para autenticación JWT (usado en las nuevas rutas)
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token de acceso requerido',
+      error: 'ACCESS_TOKEN_REQUIRED'
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET || 'default_secret', (err, user) => {
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(403).json({
+          success: false,
+          message: 'Token expirado',
+          error: 'TOKEN_EXPIRED'
+        });
+      }
+      return res.status(403).json({
+        success: false,
+        message: 'Token inválido',
+        error: 'INVALID_TOKEN'
+      });
+    }
+    
+    req.user = user;
+    next();
+  });
+};
+
+module.exports = {
+  requireAuthentication,
+  authenticateToken
+};

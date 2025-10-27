@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const requireAuthentication = require('../middlewares/auth');
+const { requireAuthentication } = require('../middlewares/auth');
 const { requireRole } = require('../middlewares/roles');
 
 // Panel de administración (solo admin)

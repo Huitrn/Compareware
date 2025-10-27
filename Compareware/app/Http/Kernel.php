@@ -35,5 +35,10 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
         'simular.auth' => \App\Http\Middleware\SimularAuth::class,
+        
+        // 🛡️ MIDDLEWARES DE SEGURIDAD PERSONALIZADOS
+        'sql.security' => \App\Http\Middleware\SQLSecurityMiddleware::class,
+        'rate.limit' => \App\Http\Middleware\AdvancedRateLimiting::class,
+        'secure.auth' => \App\Http\Middleware\SecureAuthentication::class,
     ];
 }

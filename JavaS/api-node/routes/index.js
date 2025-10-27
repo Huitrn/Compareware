@@ -12,7 +12,15 @@ router.get('/', (req, res) => {
       users: '/api/users (GET, POST, PUT, DELETE)',
       perifericos: '/api/perifericos (GET, POST, PUT, DELETE)',
       admin: '/api/admin (GET dashboard)',
+      orders: '/api/orders (GET, POST, PUT - Transacciones Distribuidas)',
+      audit: '/api/audit (GET - Logs y Auditoría)',
       health: '/api/health'
+    },
+    features: {
+      distributed_transactions: 'Transacciones distribuidas con compensación automática',
+      audit_logging: 'Sistema completo de auditoría y logs',
+      repository_pattern: 'Capa de abstracción de datos con repositorios',
+      transaction_manager: 'Gestor de transacciones con rollback automático'
     },
     timestamp: new Date().toISOString()
   });
@@ -33,5 +41,12 @@ router.use('/auth', require('./auth'));
 router.use('/users', require('./users'));
 router.use('/perifericos', require('./perifericos'));
 router.use('/admin', require('./admin'));
+
+// Historial de comparaciones
+router.use('/historial', require('./historial'));
+
+// Nuevas rutas - Transacciones Distribuidas y Auditoría
+router.use('/orders', require('./orderRoutes'));
+router.use('/audit', require('./auditRoutes'));
 
 module.exports = router;

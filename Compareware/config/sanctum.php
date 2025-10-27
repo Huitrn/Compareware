@@ -16,10 +16,10 @@ return [
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        '%s%s%s',
+        'localhost,localhost:3000,localhost:4000,127.0.0.1,127.0.0.1:8000,127.0.0.1:4000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
+        env('APP_ENV') === 'production' ? '' : ',compareware.local'
     ))),
 
     /*
@@ -41,13 +41,12 @@ return [
     | Expiration Minutes
     |--------------------------------------------------------------------------
     |
-    | This value controls the number of minutes until an issued token will be
-    | considered expired. This will override any values set in the token's
-    | "expires_at" attribute, but first-party sessions are not affected.
+    | 🛡️ SEGURIDAD: Tokens expiran en 2 horas por defecto
+    | Para máxima seguridad, los tokens deben tener vida limitada
     |
     */
 
-    'expiration' => null,
+    'expiration' => env('SANCTUM_EXPIRATION', 120), // 2 horas
 
     /*
     |--------------------------------------------------------------------------

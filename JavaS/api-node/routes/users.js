@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const requireAuthentication = require('../middlewares/auth');
+const { requireAuthentication } = require('../middlewares/auth');
 const { requireRole } = require('../middlewares/roles');
 
 // Obtener perfil del usuario autenticado

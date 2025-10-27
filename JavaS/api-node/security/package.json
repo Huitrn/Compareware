@@ -1,0 +1,22 @@
+{
+  "name": "compareware-security-scripts",
+  "version": "1.0.0",
+  "description": "Scripts de seguridad para el proyecto Compareware",
+  "scripts": {
+    "security:test": "node security/security_tests.js full",
+    "security:test:quick": "node security/security_tests.js specific",
+    "security:status": "curl -s http://localhost:3000/security/status | json_pp",
+    "security:pentest": "curl -X POST -H 'Content-Type: application/json' -d '{\"testType\":\"full\"}' http://localhost:3000/security/pentest",
+    "security:pentest:quick": "curl -X POST -H 'Content-Type: application/json' -d '{\"testType\":\"quick\"}' http://localhost:3000/security/pentest",
+    "security:logs": "tail -f logs/security_$(date +%Y-%m-%d).log",
+    "security:stats": "node -e \"const {securityLogger} = require('./security/SecurityLogger'); console.log(JSON.stringify(securityLogger.getStatistics(), null, 2))\"",
+    "security:validate": "node -e \"const {sqlValidator} = require('./security/SQLSecurityValidator'); const input = process.argv[1]; const result = sqlValidator.validateAdvanced(input); console.log(JSON.stringify(result, null, 2))\" --"
+  },
+  "keywords": ["security", "sql-injection", "waf", "penetration-testing"],
+  "author": "Compareware Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "validator": "^13.11.0"
+  }
+}

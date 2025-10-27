@@ -11,6 +11,14 @@ const validateRequiredFields = (requiredFields) => {
   return (req, res, next) => {
     const validationErrors = [];
     
+    // Verificar que req.body existe
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({
+        error: 'Request body is required',
+        details: 'El cuerpo de la petición debe ser un objeto JSON válido'
+      });
+    }
+    
     requiredFields.forEach(field => {
       if (!req.body[field]) {
         validationErrors.push({

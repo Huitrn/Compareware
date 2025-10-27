@@ -2,18 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\SecureComparacionRequest;
 use App\Models\Periferico;
 use App\Models\Comparacion;
+use App\Services\SecurityLogger;
 
 class ComparacionController extends Controller
 {
-    public function comparar(Request $request)
-    {
-        $id1 = $request->query('periferico1');
-        $id2 = $request->query('periferico2');
+    protected SecurityLogger $securityLogger;
 
-        // Buscar los periféricos
+    public function __construct()
+    {
+        // Aplicar middlewares de seguridad (solo los que están registrados)
+        $this->middleware('sql.security');
+    }
+
+    public function comparar(SecureComparacionRequest $request)
+    {
+        // Obtener IDs validados y sanitizados
+        $ids = $request->getPerifericoIds();
+        $id1 = $ids['periferico1'];
+        $id2 = $ids['periferico2'];
+
+        // Log de actividad de comparación
+        \Log::info('COMPARISON_REQUEST', [
+            'periferico1_id' => $id1,
+            'periferico2_id' => $id2,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        // Buscar los periféricos (ya validados por exists en SecureComparacionRequest)
         $periferico1 = Periferico::find($id1);
         $periferico2 = Periferico::find($id2);
 

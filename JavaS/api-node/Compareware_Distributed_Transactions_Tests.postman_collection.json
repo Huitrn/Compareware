@@ -1,0 +1,693 @@
+{
+  "info": {
+    "name": "Compareware API - Transacciones Distribuidas y Auditoría",
+    "description": "Colección completa para probar el sistema de transacciones distribuidas, capa de repositorios y auditoría implementado en Compareware API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏠 API Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('API está funcionando', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.message).to.eql('Compareware API');",
+              "    pm.expect(response.features).to.have.property('distributed_transactions');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 Registro de Usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Usuario Prueba Transacciones\",\n  \"email\": \"transacciones@test.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuario registrado exitosamente', function () {",
+              "    pm.response.to.have.status(201);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.message).to.include('exitosamente');",
+              "    pm.globals.set('userId', response.user.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Login de Usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"transacciones@test.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login exitoso', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('token');",
+              "    pm.globals.set('authToken', response.token);",
+              "    pm.globals.set('userId', response.user.id);",
+              "});",
+              "",
+              "pm.test('Token JWT válido', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.token).to.match(/^eyJ[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Crear Pedido - Transacción Distribuida Exitosa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderData\": {\n    \"user_id\": {{userId}},\n    \"total_amount\": 299.97,\n    \"shipping_address\": \"123 Test Street, Test City, TC 12345\",\n    \"billing_address\": \"123 Test Street, Test City, TC 12345\",\n    \"payment_method\": \"CREDIT_CARD\",\n    \"notes\": \"Pedido de prueba para transacción distribuida\"\n  },\n  \"orderItems\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1,\n      \"unit_price\": 129.99,\n      \"subtotal\": 129.99\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 2,\n      \"unit_price\": 79.99,\n      \"subtotal\": 159.98\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Pedido creado exitosamente', function () {",
+              "    pm.response.to.have.status(201);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('transactionId');",
+              "    pm.expect(response.data).to.have.property('order');",
+              "    pm.globals.set('orderId', response.data.order.order.id);",
+              "    pm.globals.set('transactionId', response.data.transactionId);",
+              "});",
+              "",
+              "pm.test('Transacción distribuida completada', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.message).to.include('transacción distribuida');",
+              "    pm.expect(response.data.transactionId).to.match(/^txn_/);",
+              "});",
+              "",
+              "pm.test('Orden tiene items correctos', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data.order.items).to.be.an('array');",
+              "    pm.expect(response.data.order.items.length).to.equal(2);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💥 Crear Pedido - Transacción que Falla (Rollback)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderData\": {\n    \"user_id\": 999999,\n    \"total_amount\": 199999.99,\n    \"shipping_address\": \"456 Fail Street, Fail City, FC 67890\",\n    \"payment_method\": \"CREDIT_CARD\",\n    \"notes\": \"Pedido que debería fallar para probar rollback\"\n  },\n  \"orderItems\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1000,\n      \"unit_price\": 129.99,\n      \"subtotal\": 129990.00\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Transacción falló como se esperaba', function () {",
+              "    pm.response.to.have.status(400);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.false;",
+              "    pm.expect(response).to.have.property('transactionId');",
+              "});",
+              "",
+              "pm.test('Rollback automático ejecutado', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.message).to.include('revertidas');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Obtener Pedido con Historial Completo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}/history",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "{{orderId}}", "history"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Historial obtenido exitosamente', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('order');",
+              "    pm.expect(response.data).to.have.property('items');",
+              "    pm.expect(response.data).to.have.property('history');",
+              "});",
+              "",
+              "pm.test('Auditoría completa disponible', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data.history).to.be.an('array');",
+              "    pm.expect(response.data.history.length).to.be.greaterThan(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚫 Cancelar Pedido - Transacción Distribuida",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Cancelación de prueba - Testing transacción distribuida\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "{{orderId}}", "cancel"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Pedido cancelado exitosamente', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('transactionId');",
+              "});",
+              "",
+              "pm.test('Stock liberado automáticamente', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.message).to.include('exitosamente');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Estadísticas de Transacciones",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/stats/transactions",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "stats", "transactions"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Estadísticas obtenidas exitosamente', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('weekly_stats');",
+              "    pm.expect(response.data).to.have.property('active_transactions');",
+              "});",
+              "",
+              "pm.test('Métricas de transacciones disponibles', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data.weekly_stats).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Obtener Órdenes del Usuario Autenticado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/user/me?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "user", "me"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Órdenes del usuario obtenidas', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('orders');",
+              "    pm.expect(response.data).to.have.property('pagination');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Órdenes por Estado - PENDING",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/status/PENDING?page=1&limit=5",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "status", "PENDING"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Órdenes por estado obtenidas', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.status).to.equal('PENDING');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔍 Logs de Auditoría por Transacción",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit/transaction/{{transactionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["audit", "transaction", "{{transactionId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Logs de auditoría obtenidos', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('logs');",
+              "    pm.expect(response.data).to.have.property('count');",
+              "});",
+              "",
+              "pm.test('Trazabilidad completa disponible', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data.logs).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Logs de Auditoría por Usuario",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit/user/{{userId}}?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["audit", "user", "{{userId}}"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Logs del usuario obtenidos', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.userId).to.equal(pm.globals.get('userId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏷️ Logs por Entidad - ORDER",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit/entity/ORDER/{{orderId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["audit", "entity", "ORDER", "{{orderId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Logs de entidad obtenidos', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.entityType).to.equal('ORDER');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚡ Logs por Acción - ORDER_CREATED",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit/action/ORDER_CREATED?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["audit", "action", "ORDER_CREATED"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Logs por acción obtenidos', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.action).to.equal('ORDER_CREATED');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Estadísticas de Auditoría",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit/stats?days=7",
+          "host": ["{{baseUrl}}"],
+          "path": ["audit", "stats"],
+          "query": [
+            {
+              "key": "days",
+              "value": "7"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Estadísticas de auditoría obtenidas', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.have.property('statistics');",
+              "    pm.expect(response.data).to.have.property('period_days');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Configuración global para todas las requests",
+          "pm.request.headers.add({key: 'User-Agent', value: 'Postman-Compareware-Tests/1.0'});",
+          "",
+          "// Verificar que tenemos token para requests autenticadas",
+          "if (pm.request.url.toString().includes('/orders') || pm.request.url.toString().includes('/audit')) {",
+          "    const token = pm.globals.get('authToken');",
+          "    if (!token && !pm.request.url.toString().includes('/auth/')) {",
+          "        console.log('⚠️ Token no encontrado. Ejecuta primero el login.');",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Tests globales para todas las responses",
+          "pm.test('Response time es aceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Headers de seguridad presentes', function () {",
+          "    pm.expect(pm.response.headers.get('X-App-Name')).to.exist;",
+          "});"
+        ]
+      }
+    }
+  ]
+}

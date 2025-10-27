@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const addCustomHeaders = require('./middlewares/customHeaders');
 const globalErrorHandler = require('./middlewares/errorHandler');
 const rateLimiter = require('./middlewares/rateLimiter');
+const { sqlInjectionProtection } = require('./middlewares/sqlSecurityMiddleware');
 const { logSecurityEvent } = require('./middlewares/logging');
 const pool = require('./config/db');
 const routes = require('./routes');
@@ -16,6 +17,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(addCustomHeaders);
+
+// 🛡️ Protección global contra SQL Injection (modo permisivo para todas las rutas)
+app.use(sqlInjectionProtection({
+  strictMode: false,        // No bloquear por defecto, solo sanitizar
+  logAttempts: true,        // Sí loguear todos los intentos
+  blockOnDetection: false   // No bloquear globalmente, dejar que rutas específicas decidan
+}));
 
 // Validar conexión a la base de datos al iniciar
 (async () => {

@@ -1,14 +1,28 @@
 {
-  "name": "api-node",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "compareware-api-node",
+  "version": "1.1.0",
+  "description": "Compareware API con Sistema de Transacciones Distribuidas y Auditoría Completa",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "node test_distributed_transactions.js --full",
+    "test:orders": "node test_distributed_transactions.js --create-order",
+    "test:rollback": "node test_distributed_transactions.js --create-fail",
+    "test:stats": "node test_distributed_transactions.js --stats",
+    "migrate": "echo 'Ejecute manualmente: \\i database/migrations/001_distributed_transactions_audit_system.sql'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "api",
+    "nodejs",
+    "postgresql",
+    "distributed-transactions",
+    "audit-logging",
+    "repository-pattern",
+    "transaction-manager"
+  ],
+  "author": "Compareware Team",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
@@ -16,6 +30,23 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "axios": "^1.6.0",
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "features": {
+    "distributed_transactions": "Sistema completo de transacciones distribuidas con compensación automática",
+    "audit_system": "Logging y auditoría completa de todas las operaciones",
+    "repository_pattern": "Capa de abstracción de datos con repositorios especializados",
+    "transaction_manager": "Gestor centralizado de transacciones con rollback automático",
+    "security_logging": "Sistema de logs de seguridad y monitoreo",
+    "performance_optimization": "Índices optimizados y consultas eficientes"
   }
 }

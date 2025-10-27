@@ -47,3 +47,6 @@ Route::post('/test-web', function () {
 Route::get('/Hola', function(){
     return 'Hola mundo :)';
 });
+
+// Ruta de prueba para validación de seguridad
+Route::get('/test-comparacion', [App\Http\Controllers\TestComparacionController::class, 'comparar']);
