@@ -14,6 +14,7 @@ router.get('/', (req, res) => {
       admin: '/api/admin (GET dashboard)',
       orders: '/api/orders (GET, POST, PUT - Transacciones Distribuidas)',
       audit: '/api/audit (GET - Logs y Auditoría)',
+      products: '/api/products (GET specs, prices, compare)',
       health: '/api/health'
     },
     features: {
@@ -48,5 +49,6 @@ router.use('/historial', require('./historial'));
 // Nuevas rutas - Transacciones Distribuidas y Auditoría
 router.use('/orders', require('./orderRoutes'));
 router.use('/audit', require('./auditRoutes'));
+router.use('/products', require('./products'));
 
 module.exports = router;

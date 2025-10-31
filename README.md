@@ -480,7 +480,7 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 ##  ¿Primera vez usando Compareware?
 
 ### **Inicio Rápido Recomendado**
-1. **📖 Instalación**: Lee el [Manual de Frameworks](storage/framework/Manual_usuario_frameworks.md) 
+1. **Instalación**: Lee el [Manual de Frameworks](storage/framework/Manual_usuario_frameworks.md) 
 2. **Base de Datos**: Revisa el [Manual de Base de Datos](database/manual-de-usuario-para-base-de-datos.md)
 3. **Seguridad**: Consulta la [Auditoría de Seguridad](AUDITORIA_SEGURIDAD_COMPLETA.md) para entender las protecciones
 

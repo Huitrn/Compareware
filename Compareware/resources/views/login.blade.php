@@ -57,24 +57,51 @@
         <!-- ...existing code... -->
 <div class="px-40 flex flex-1 justify-center py-5 items-center">
   <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1 justify-center items-center">
-    <h2 class="text-[#0d141c] tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Iniciar sesión en CompareWare</h2>
-    <form id="loginForm" class="flex flex-col gap-4 px-4 py-3 w-full items-center">
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="Correo electrónico"
-        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border border-[#cedbe8] bg-slate-50 focus:border-[#cedbe8] h-14 placeholder:text-[#49739c] p-[15px] text-base font-normal leading-normal"
-        required
-      />
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Contraseña"
-        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border border-[#cedbe8] bg-slate-50 focus:border-[#cedbe8] h-14 placeholder:text-[#49739c] p-[15px] text-base font-normal leading-normal"
-        required
-      />
+            <h2 class="text-[#0d141c] tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Iniciar sesión en CompareWare</h2>
+            
+            <!-- Mostrar errores de validación -->
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- Mostrar mensaje de éxito -->
+            @if (session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 w-full">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Mostrar enlace a registro si el usuario no existe -->
+            @if (session('show_register_link'))
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 w-full">
+                    ¿No tienes una cuenta? 
+                    <a href="{{ session('register_url') }}" class="font-medium text-blue-600 hover:underline">Regístrate aquí</a>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-4 px-4 py-3 w-full items-center">
+              @csrf
+              <input
+                type="email"
+                name="email"
+                placeholder="Correo electrónico"
+                value="{{ old('email') }}"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border border-[#cedbe8] bg-slate-50 focus:border-[#cedbe8] h-14 placeholder:text-[#49739c] p-[15px] text-base font-normal leading-normal @error('email') border-red-500 @enderror"
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Contraseña"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border border-[#cedbe8] bg-slate-50 focus:border-[#cedbe8] h-14 placeholder:text-[#49739c] p-[15px] text-base font-normal leading-normal @error('password') border-red-500 @enderror"
+                required
+              />
 
       <button
         type="submit"
@@ -83,10 +110,9 @@
       >
         <span class="truncate">Iniciar sesión</span>
       </button>
-    </form>
-    <div id="loginResult" class="px-4 py-2 text-red-600"></div>
-  </div>
-</div>
+            </form>
+          </div>
+        </div>
 
             <div class="flex items-center gap-4 bg-slate-50 px-4 min-h-14 justify-between">
               <p class="text-[#0d141c] text-base font-normal leading-normal flex-1 truncate">Recordarme</p>
@@ -95,45 +121,21 @@
                   class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#e7edf4] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#0d80f2]"
                 >
                   <div class="h-full w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px;"></div>
-                  <input type="checkbox" class="invisible absolute" />
+                  <input type="checkbox" name="remember" class="invisible absolute" />
                 </label>
               </div>
             </div>
             <p class="text-[#49739c] text-sm font-normal leading-normal pb-3 pt-1 px-4 underline">¿Olvidaste tu contraseña?</p>
             <p class="text-[#49739c] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">
               ¿No tienes una cuenta?
-              <a href="/registro" class="text-blue-600 hover:underline">Regístrate</a>
+              <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Regístrate</a>
             </p>
 
             </div>
         </div>
       </div>
     </div>
-    <script>
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
 
-  const response = await fetch('http://localhost:4000/api/login', { // <-- Cambiado a puerto 4000
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({ email, password }) // <- Enviar solo email y password
-  });
-
-  const result = await response.json();
-  if (response.ok) {
-    document.getElementById('loginResult').innerText = '¡Login exitoso!';
-    // Puedes guardar el token en localStorage si lo necesitas:
-    // localStorage.setItem('token', result.token);
-  } else {
-    document.getElementById('loginResult').innerText = result.error || 'Error al iniciar sesión';
-  }
-});
-</script>
 <script src="{{ asset('js/theme-switcher.js') }}"></script>
   </body>
 </html>

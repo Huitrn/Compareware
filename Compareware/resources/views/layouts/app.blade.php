@@ -20,7 +20,7 @@
             <!-- Header -->
             <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] px-10 py-3">
                 <div class="flex items-center gap-8">
-                    <div class="flex items-center gap-4 text-[#0d141c]">
+                    <a href="{{ route('home') }}" class="flex items-center gap-4 text-[#0d141c] hover:opacity-80 transition-opacity">
                         <div class="size-4">
                             <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -30,35 +30,49 @@
                             </svg>
                         </div>
                         <h2 class="logo-link text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">CompareWare</h2>
-                    </div>
+                    </a>
                     <div class="flex items-center gap-9">
-                        <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="{{ route('home') }}">Inicio</a>
-                        <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="{{ route('marcas') }}">Marcas</a>
+                        @auth
+                            @if(Auth::user()->role === 'admin')
+                                <a class="nav-link text-purple-600 text-sm font-bold leading-normal hover:text-purple-800" href="{{ route('admin.dashboard') }}">🔧 Admin</a>
+                            @endif
+                        @endauth
                         <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="#">Contacto</a>
                     </div>
                 </div>
-                <div class="flex flex-1 justify-end gap-8">
-                    <label class="flex flex-col min-w-40 !h-10 max-w-64">
-                        <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-                            <div
-                                class="text-[#49739c] flex border-none bg-[#e7edf4] items-center justify-center pl-4 rounded-l-lg border-r-0"
-                                data-icon="MagnifyingGlass"
-                                data-size="24px"
-                                data-weight="regular"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                                    <path
-                                        d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
-                                    ></path>
+                <div class="flex flex-1 justify-end gap-4 items-center">
+                    @auth
+                        <!-- Usuario autenticado -->
+                        <span class="text-[#0d141c] text-sm font-medium">Hola, {{ Auth::user()->name }} ({{ Auth::user()->role }})</span>
+                        
+                        @if(Auth::user()->role === 'admin')
+                            <!-- Botón de Admin Panel -->
+                            <a href="{{ route('admin.dashboard') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg text-lg font-bold transition-colors flex items-center gap-2 border-2 border-white shadow-lg">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                            </div>
-                            <input
-                                placeholder="Search"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-full placeholder:text-[#49739c] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
-                                value=""
-                            />
-                        </div>
-                    </label>
+                                Admin
+                            </a>
+                        @endif
+                        
+                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    @else
+                        <!-- Usuario no autenticado -->
+                        <a href="{{ route('login') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Iniciar sesión
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Registrarse
+                        </a>
+                    @endauth
+                    
+                    <!-- Botón de tema -->
                     <button
                         id="theme-toggle"
                         class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
@@ -76,10 +90,6 @@
                             </svg>
                         </span>
                     </button>
-                    <div
-                        class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADwkjq3QGdj2I_v6ukQlP9YZkzMqfEOuSpSjqUDPKf22K8DnxgjfpEtnoCAf7-s9MNnTZoiYt3fNCylkLNS9XYxIsQLaJW6laqNQLUgnnyK_JHA1nzpQmXtH3c1-AiP7QciUCp7MUF4Jcgy4J-KMrYrG9XS8DjmYzMfXeL-vvMezy1bmt9FppDx3b12fn9MtFUmuBMWkfCIRny6UkqVyg9F1GJ21gM1oAhACoAfU1CIvEW-bPv83kJkl59crpi3U-bv6ApUsb-D_c");'
-                    ></div>
                 </div>
             </header>
 

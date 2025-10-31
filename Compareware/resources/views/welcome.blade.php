@@ -34,6 +34,53 @@
               <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="#">Contacto</a>
             </div>
             <div class="flex gap-2">
+              @auth
+                <!-- Usuario autenticado -->
+                <span class="text-[#0d141c] text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                  @csrf
+                  <button
+                    type="submit"
+                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-red-600 text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-red-700"
+                  >
+                    Cerrar sesión
+                  </button>
+                </form>
+              @else
+                <!-- Usuario no autenticado -->
+                <a
+                  href="{{ route('login') }}"
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#0d80f2] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-blue-600"
+                >
+                  Iniciar sesión
+                </a>
+                <a
+                  href="{{ route('register') }}"
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-gray-200"
+                >
+                  Registrarse
+                </a>
+              @endauth
+
+              @auth
+                @if(Auth::user()->role === 'admin')
+                  <div class="flex gap-2">
+                    <a
+                      href="{{ route('admin.access') }}"
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-purple-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-purple-700 transition-colors"
+                    >
+                      <span class="truncate">🎯 Área Admin</span>
+                    </a>
+                    <a
+                      href="{{ route('panel.admin') }}"
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-indigo-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-indigo-700 transition-colors"
+                    >
+                      <span class="truncate">🚀 Directo</span>
+                    </a>
+                  </div>
+                @endif
+              @endauth
+              
               <button
                 id="theme-toggle"
                 class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
@@ -46,8 +93,6 @@
                   </svg>
                 </div>
               </button>
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-          style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCtVmO1pZu8P7jfJrUU-QY-bu3xMdiiGglWQv2sFdbUf2mVR_jaSHPqiEz-_sKzgHAcTeVDNKXNbgElLb6UWzQPzYNKD_iWvUHEzpwrVfA_-a19Eho9V_D3T0n_Le-uwc6e6ZcrCm-7ZwGqCRWKpgvr35ka35mr5MnJpKAWmhBJD9avopCYM4KZnC7VIyBAsJwB8pztwQg-ZzAWjcORcwiFtIPgGllelTJO7trBV3T8DcTOoGn5KC0M_oFjf2Rp-MMoa0ZBCcNIZKvm");'>
         </div>
             </div>
           </div>

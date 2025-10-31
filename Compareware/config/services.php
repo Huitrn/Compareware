@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'host' => env('RAPIDAPI_HOST', 'real-time-amazon-data.p.rapidapi.com'),
+        'base_url' => env('AMAZON_API_BASE_URL', 'https://real-time-amazon-data.p.rapidapi.com'),
+    ],
+
+    'node_api' => [
+        'base_url' => env('NODE_API_BASE_URL', 'http://localhost:3000/api'),
+    ],
+
 ];

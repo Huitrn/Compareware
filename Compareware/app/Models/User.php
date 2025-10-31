@@ -37,7 +37,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'is_suspended'
     ];
 
     /**
@@ -95,6 +96,9 @@ class User extends Authenticatable
         $this->attributes['email'] = $sanitized;
     }
 
+    /**
+     * Mutator seguro para role - validar roles permitidos
+     */
     /**
      * Mutator seguro para role - validar roles permitidos
      */

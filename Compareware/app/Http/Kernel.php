@@ -40,5 +40,8 @@ class Kernel extends HttpKernel
         'sql.security' => \App\Http\Middleware\SQLSecurityMiddleware::class,
         'rate.limit' => \App\Http\Middleware\AdvancedRateLimiting::class,
         'secure.auth' => \App\Http\Middleware\SecureAuthentication::class,
+        
+        // 👨‍💼 MIDDLEWARE DE ADMINISTRACIÓN
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

@@ -60,40 +60,78 @@
         <div class="px-40 flex flex-1 justify-center py-5">
           <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1">
             <h2 class="text-[#111418] tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Regístrate en CompareWare</h2>
-            <form id="registerForm">
+            
+            <!-- Mostrar errores de validación -->
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- Mostrar mensaje de éxito -->
+            @if (session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 w-full">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Mostrar enlace a login si el email ya existe -->
+            @if (session('show_login_link'))
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 w-full">
+                    ¿Ya tienes una cuenta? 
+                    <a href="{{ session('login_url') }}" class="font-medium text-blue-600 hover:underline">Inicia sesión aquí</a>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}">
+              @csrf
               <input
                 type="text"
-                id="name"
                 name="name"
-                placeholder="Nombre de usuario"
-                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
+                placeholder="Nombre completo"
+                value="{{ old('name') }}"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal @error('name') border-red-500 @enderror"
                 required
               />
               <input
                 type="email"
-                id="email"
                 name="email"
                 placeholder="Correo electrónico"
-                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
+                value="{{ old('email') }}"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal @error('email') border-red-500 @enderror"
                 required
               />
               <input
                 type="password"
-                id="password"
                 name="password"
-                placeholder="Contraseña"
-                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
+                placeholder="Contraseña (mín. 8 caracteres)"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal @error('password') border-red-500 @enderror"
                 required
+                minlength="8"
+              />
+              <input
+                type="password"
+                name="password_confirmation"
+                placeholder="Confirmar contraseña"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal @error('password_confirmation') border-red-500 @enderror"
+                required
+                minlength="8"
               />
               <button
                 type="submit"
-                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-[#0d80f2] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-[#0d80f2] text-white text-sm font-bold leading-normal tracking-[0.015em] mt-4"
               >
-                <span class="truncate">Regístrate</span>
+                <span class="truncate">Crear cuenta</span>
               </button>
             </form>
-            <div id="registerResult" class="px-4 py-2 text-red-600"></div>
-            <p class="text-[#60758a] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">O regístrate con</p>
+            <p class="text-[#60758a] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">
+              ¿Ya tienes una cuenta?
+              <a href="{{ route('login') }}" class="text-blue-600 hover:underline font-medium">Inicia sesión</a>
+            </p>
             <div class="flex justify-center">
               <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 max-w-[480px] justify-center">
                 <button
@@ -109,60 +147,19 @@
               </div>
             </div>
             <p class="text-[#60758a] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center underline">
-           ¿Ya tienes una cuenta?
-            <a href="/login" class="text-blue-600 hover:underline">Inicia sesión</a>
+            
+            <div class="px-4 pt-2">
+              <p class="text-[#60758a] text-xs text-center leading-normal">
+                Al crear una cuenta, aceptas nuestros 
+                <a href="#" class="text-blue-600 hover:underline">Términos de servicio</a> y 
+                <a href="#" class="text-blue-600 hover:underline">Política de privacidad</a>
               </p>
+            </div>
+            
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <script>
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  
-  // Validaciones básicas
-  if (name.length < 2) {
-    document.getElementById('registerResult').className = 'px-4 py-2 text-red-600';
-    document.getElementById('registerResult').innerText = 'El nombre debe tener al menos 2 caracteres';
-    return;
-  }
-  
-  if (password.length < 6) {
-    document.getElementById('registerResult').className = 'px-4 py-2 text-red-600';
-    document.getElementById('registerResult').innerText = 'La contraseña debe tener al menos 6 caracteres';
-    return;
-  }
-
-  const response = await fetch('http://localhost:4000/api/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({ name, email, password, role: 'user' })
-  });
-
-  const result = await response.json();
-  const resultDiv = document.getElementById('registerResult');
-  
-  if (response.ok) {
-    resultDiv.className = 'px-4 py-2 text-green-600';
-    resultDiv.innerText = result.message || '¡Registro exitoso!';
-    // Limpiar formulario
-    document.getElementById('registerForm').reset();
-    // Opcional: redirigir al login después de unos segundos
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 2000);
-  } else {
-    resultDiv.className = 'px-4 py-2 text-red-600';
-    resultDiv.innerText = result.error || result.message || 'Error al registrar';
-  }
-});
-</script>
 <script src="{{ asset('js/theme-switcher.js') }}"></script>
   </body>
 </html>

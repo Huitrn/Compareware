@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SecureComparacionRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Periferico;
 use App\Models\Comparacion;
-use App\Services\SecurityLogger;
 
 class ComparacionController extends Controller
 {
-    protected SecurityLogger $securityLogger;
 
-    public function __construct()
+    public function comparar(\Illuminate\Http\Request $request)
     {
-        // Aplicar middlewares de seguridad (solo los que están registrados)
-        $this->middleware('sql.security');
-    }
-
-    public function comparar(SecureComparacionRequest $request)
-    {
-        // Obtener IDs validados y sanitizados
-        $ids = $request->getPerifericoIds();
-        $id1 = $ids['periferico1'];
-        $id2 = $ids['periferico2'];
+        // Obtener IDs desde GET o POST
+        $id1 = $request->input('periferico1');
+        $id2 = $request->input('periferico2');
+        
+        // Validar que los IDs sean enteros válidos
+        if (!$id1 || !$id2 || !is_numeric($id1) || !is_numeric($id2)) {
+            return response()->json(['success' => false, 'message' => 'IDs de periféricos inválidos']);
+        }
+        
+        $id1 = (int)$id1;
+        $id2 = (int)$id2;
 
         // Log de actividad de comparación
         \Log::info('COMPARISON_REQUEST', [
@@ -32,9 +32,28 @@ class ComparacionController extends Controller
             'user_agent' => $request->userAgent()
         ]);
 
-        // Buscar los periféricos (ya validados por exists en SecureComparacionRequest)
-        $periferico1 = Periferico::find($id1);
-        $periferico2 = Periferico::find($id2);
+        // Buscar los periféricos con información completa
+        $periferico1 = DB::table('perifericos as p')
+            ->leftJoin('marcas as m', 'p.marca_id', '=', 'm.id')
+            ->leftJoin('categorias as c', 'p.categoria_id', '=', 'c.id')
+            ->select(
+                'p.id', 'p.nombre', 'p.modelo', 'p.precio', 'p.tipo_conectividad',
+                'm.nombre as marca_nombre',
+                'c.nombre as categoria_nombre'
+            )
+            ->where('p.id', $id1)
+            ->first();
+            
+        $periferico2 = DB::table('perifericos as p')
+            ->leftJoin('marcas as m', 'p.marca_id', '=', 'm.id')
+            ->leftJoin('categorias as c', 'p.categoria_id', '=', 'c.id')
+            ->select(
+                'p.id', 'p.nombre', 'p.modelo', 'p.precio', 'p.tipo_conectividad',
+                'm.nombre as marca_nombre',
+                'c.nombre as categoria_nombre'
+            )
+            ->where('p.id', $id2)
+            ->first();
 
         if (!$periferico1 || !$periferico2) {
             return response()->json(['success' => false, 'message' => 'Periféricos no encontrados']);
