@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test YouTube API - AJAX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        .video-card {
+            transition: all 0.3s ease;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center text-white mb-5">
+            <h1 class="display-4 fw-bold">🎬 YouTube API Test (AJAX)</h1>
+            <p class="lead">Prueba la integración con llamadas AJAX</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Buscar Videos</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" id="productName" class="form-control" 
+                               placeholder="Nombre del producto" value="Logitech G502">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="searchType" class="form-select">
+                            <option value="review">Review</option>
+                            <option value="unboxing">Unboxing</option>
+                            <option value="tutorial">Tutorial</option>
+                            <option value="comparison">Comparison</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button onclick="searchVideos()" class="btn btn-primary w-100">
+                            🔍 Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center text-white d-none">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Buscando videos...</p>
+        </div>
+
+        <div id="results"></div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5>📡 Response JSON:</h5>
+                <pre id="jsonResponse" class="bg-light p-3 rounded" style="max-height: 300px; overflow: auto;">
+Haz una búsqueda para ver la respuesta JSON...
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function searchVideos() {
+            const productName = document.getElementById('productName').value;
+            const searchType = document.getElementById('searchType').value;
+            
+            document.getElementById('loading').classList.remove('d-none');
+            document.getElementById('results').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/youtube/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_name: productName,
+                        search_type: searchType,
+                        max_results: 5
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('jsonResponse').textContent = 
+                    JSON.stringify(data, null, 2);
+                
+                if (data.success && data.videos) {
+                    displayVideos(data);
+                } else {
+                    document.getElementById('results').innerHTML = `
+                        <div class="alert alert-warning">
+                            ⚠️ ${data.message || 'No se encontraron videos'}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-danger">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            } finally {
+                document.getElementById('loading').classList.add('d-none');
+            }
+        }
+        
+        function displayVideos(data) {
+            let html = `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h4>✅ ${data.total_results} videos encontrados para "${data.product}"</h4>
+                        ${data.using_mock_data ? '<span class="badge bg-warning">MODO DEMO</span>' : ''}
+                    </div>
+                </div>
+                <div class="row g-3">
+            `;
+            
+            data.videos.forEach(video => {
+                html += `
+                    <div class="col-md-4">
+                        <div class="card video-card h-100">
+                            <img src="${video.thumbnail}" class="card-img-top" alt="${video.title}">
+                            <div class="card-body">
+                                <h6 class="card-title">${video.title}</h6>
+                                <p class="card-text small text-muted">
+                                    📺 ${video.channel_name}
+                                </p>
+                                <a href="${video.url}" target="_blank" class="btn btn-sm btn-primary">
+                                    Ver en YouTube
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Hacer búsqueda inicial
+        window.onload = () => searchVideos();
+    </script>
+</body>
+</html>

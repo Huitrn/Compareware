@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Amazon Integration - Productos Específicos BDD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">🔍 Test Amazon Integration con Productos BDD</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Test Haylou S35 ANC -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4 text-blue-400">Haylou S35 ANC</h2>
+                <p class="text-gray-300 mb-3">ID: 1 | Precio BDD: $800 MXN</p>
+                <button onclick="testProduct(1)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                    Probar Amazon API
+                </button>
+                <div id="result-1" class="mt-4 text-sm"></div>
+            </div>
+            
+            <!-- Test Skullcandy Crusher -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4 text-orange-400">Skullcandy Crusher ANC 2</h2>
+                <p class="text-gray-300 mb-3">ID: 2 | Precio BDD: $4000 MXN</p>
+                <button onclick="testProduct(2)" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded">
+                    Probar Amazon API
+                </button>
+                <div id="result-2" class="mt-4 text-sm"></div>
+            </div>
+            
+            <!-- Test Xiaomi Redmi Buds -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">Xiaomi Redmi Buds 6</h2>
+                <p class="text-gray-300 mb-3">ID: 3 | Precio BDD: $840 MXN</p>
+                <button onclick="testProduct(3)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                    Probar Amazon API
+                </button>
+                <div id="result-3" class="mt-4 text-sm"></div>
+            </div>
+        </div>
+        
+        <!-- Área de resultados -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">📊 Resultados de las Pruebas:</h3>
+            <div id="main-results" class="space-y-4"></div>
+        </div>
+        
+        <!-- Test comparación -->
+        <div class="bg-purple-900 p-6 rounded-lg mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-purple-200">🆚 Test Comparación Completa</h3>
+            <p class="text-purple-300 mb-4">Simular comparación entre dos productos como en la vista comparadora real:</p>
+            <button onclick="testComparison(1, 2)" class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded mr-4">
+                Comparar Haylou vs Skullcandy
+            </button>
+            <button onclick="testComparison(2, 3)" class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded">
+                Comparar Skullcandy vs Xiaomi
+            </button>
+            <div id="comparison-results" class="mt-4"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testProduct(productId) {
+            const resultDiv = document.getElementById(`result-${productId}`);
+            const mainResults = document.getElementById('main-results');
+            
+            resultDiv.innerHTML = '<div class="animate-pulse text-yellow-400">🔄 Cargando...</div>';
+            
+            try {
+                const response = await fetch(`/amazon-for-product/${productId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const dbProduct = data.db_product;
+                    const amazonProduct = data.amazon_results.data.products[0];
+                    
+                    resultDiv.innerHTML = `
+                        <div class="text-green-400">✅ Éxito</div>
+                        <div class="text-xs text-gray-400 mt-1">
+                            Amazon: ${amazonProduct.product_title.substring(0, 40)}...<br>
+                            Precio: ${amazonProduct.product_price}<br>
+                            Match: ${amazonProduct._db_match || 'N/A'}
+                        </div>
+                    `;
+                    
+                    // Mostrar resultado detallado en área principal
+                    const detailDiv = document.createElement('div');
+                    detailDiv.className = 'border border-green-500 p-4 rounded bg-green-900/20';
+                    detailDiv.innerHTML = `
+                        <h4 class="font-bold text-green-300">✅ Producto ${productId}: ${dbProduct.name}</h4>
+                        <div class="grid grid-cols-2 gap-4 mt-2 text-sm">
+                            <div>
+                                <strong>BDD:</strong><br>
+                                Marca: ${dbProduct.brand}<br>
+                                Precio: $${dbProduct.price_mxn} MXN<br>
+                                Categoría: ${dbProduct.category}
+                            </div>
+                            <div>
+                                <strong>Amazon:</strong><br>
+                                ${amazonProduct.product_title}<br>
+                                Precio: ${amazonProduct.product_price}<br>
+                                Rating: ⭐ ${amazonProduct.product_star_rating} (${amazonProduct.product_num_ratings} reviews)
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-green-200">
+                            ${amazonProduct._db_match || ''}
+                        </div>
+                    `;
+                    mainResults.appendChild(detailDiv);
+                } else {
+                    resultDiv.innerHTML = `<div class="text-red-400">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testComparison(id1, id2) {
+            const resultDiv = document.getElementById('comparison-results');
+            
+            resultDiv.innerHTML = '<div class="animate-pulse text-yellow-400">🔄 Simulando comparación completa...</div>';
+            
+            try {
+                const [product1Response, product2Response] = await Promise.all([
+                    fetch(`/amazon-for-product/${id1}`),
+                    fetch(`/amazon-for-product/${id2}`)
+                ]);
+                
+                const product1Data = await product1Response.json();
+                const product2Data = await product2Response.json();
+                
+                if (product1Data.success && product2Data.success) {
+                    const p1 = product1Data.db_product;
+                    const p2 = product2Data.db_product;
+                    const a1 = product1Data.amazon_results.data.products[0];
+                    const a2 = product2Data.amazon_results.data.products[0];
+                    
+                    // Calcular precios en MXN (aproximado)
+                    const usdToMxn = 18; // Tipo de cambio aproximado
+                    const p1PriceUSD = parseFloat(a1.product_price.replace('$', ''));
+                    const p2PriceUSD = parseFloat(a2.product_price.replace('$', ''));
+                    
+                    resultDiv.innerHTML = `
+                        <div class="border border-purple-300 p-4 rounded bg-purple-900/30">
+                            <h4 class="font-bold text-purple-200 mb-4">🆚 Comparación: ${p1.name} vs ${p2.name}</h4>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="border-l-4 border-blue-500 pl-4">
+                                    <h5 class="font-semibold text-blue-300">${p1.name} (${p1.brand})</h5>
+                                    <div class="text-sm mt-2 space-y-1">
+                                        <div><strong>BDD:</strong> $${p1.price_mxn} MXN</div>
+                                        <div><strong>Amazon:</strong> ${a1.product_price} (~$${Math.round(p1PriceUSD * usdToMxn)} MXN)</div>
+                                        <div><strong>Rating:</strong> ⭐ ${a1.product_star_rating}</div>
+                                        <div class="text-xs text-blue-200">${a1._db_match || ''}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-l-4 border-orange-500 pl-4">
+                                    <h5 class="font-semibold text-orange-300">${p2.name} (${p2.brand})</h5>
+                                    <div class="text-sm mt-2 space-y-1">
+                                        <div><strong>BDD:</strong> $${p2.price_mxn} MXN</div>
+                                        <div><strong>Amazon:</strong> ${a2.product_price} (~$${Math.round(p2PriceUSD * usdToMxn)} MXN)</div>
+                                        <div><strong>Rating:</strong> ⭐ ${a2.product_star_rating}</div>
+                                        <div class="text-xs text-orange-200">${a2._db_match || ''}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-3 bg-purple-800/50 rounded text-sm">
+                                <strong>💡 Análisis:</strong> 
+                                ${p1PriceUSD < p2PriceUSD ? 
+                                    `${p1.name} es más económico en Amazon (${a1.product_price} vs ${a2.product_price})` :
+                                    `${p2.name} es más económico en Amazon (${a2.product_price} vs ${a1.product_price})`
+                                }
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="text-red-400">❌ Error en la comparación</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-test al cargar la página
+        window.onload = function() {
+            console.log('🚀 Iniciando tests automáticos...');
+            setTimeout(() => testProduct(1), 500);
+            setTimeout(() => testProduct(2), 1000);
+            setTimeout(() => testProduct(3), 1500);
+        };
+    </script>
+</body>
+</html>
