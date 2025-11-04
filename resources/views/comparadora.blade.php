@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: 'class' }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
@@ -77,20 +80,30 @@
 </head>
 
 <body>
-  <div class="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+  <div class="relative flex size-full min-h-screen flex-col bg-slate-50 dark:bg-gray-900 group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
     <div class="layout-container flex h-full grow flex-col">
     <div class="layout-container flex h-full grow flex-col">
       <!-- Header -->
-      <header id="main-header" class="flex items-center justify-between whitespace-nowrap border-b border-solid px-10 py-3 shadow-lg bg-[#0d141c] border-[#324d67]">
-        <div class="flex items-center gap-4 text-white">
-          <a href="{{ route('home') }}" class="logo-link text-white text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
+      <header id="main-header" class="flex items-center justify-between whitespace-nowrap border-b border-solid px-10 py-3 shadow-lg bg-[#0d141c] dark:bg-gray-800 border-[#324d67] dark:border-gray-700">
+        <div class="flex items-center gap-4 text-white dark:text-white">
+          <a href="{{ route('home') }}" class="logo-link text-white dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
             CompareWare
           </a>
         </div>
         <div class="flex flex-1 justify-end gap-8">
-          <a class="nav-link text-white text-sm font-medium leading-normal hover:underline" href="{{ route('marcas') }}">Marcas</a>
+          <a class="nav-link text-white dark:text-gray-300 text-sm font-medium leading-normal hover:underline dark:hover:text-blue-400" href="{{ route('marcas') }}">Marcas</a>
         </div>
         <div class="flex gap-2 items-center">
+          <!-- Botón de tema -->
+          <button
+            id="theme-toggle"
+            class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-gray-700 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
+          >
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" class="text-amber-500 dark:text-amber-300">
+              <path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path>
+            </svg>
+          </button>
+
           @auth
           <span class="text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
           
@@ -116,24 +129,23 @@
           </a>
         @endauth
         
-        <!-- Botón de tema -->
-        <button
-            id="theme-toggle"
-            class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-        >
-            <span id="theme-icon">
-                <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                    <path
-                        d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"
-                    ></path>
-                </svg>
-                <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256" style="display:none;">
-                    <path
-                        d="M233.54,142.23a8,8,0,0,0-8-2A88.08,88.08,0,0,1,114.27,29a8,8,0,0,0-10-10A104.84,104.84,0,0,0,56,192a103.09,103.09,0,0,0,24,5.28,104.84,104.84,0,0,0,153.54-55A8,8,0,0,0,233.54,142.23ZM152,184a88.15,88.15,0,0,1-88-88,89.68,89.68,0,0,1,.78-12.22a104.11,104.11,0,0,0,99.29,99.29A89.68,89.68,0,0,1,152,184Z"
-                    ></path>
-                </svg>
-            </span>
-        </button>
+        <!-- Selector de Moneda -->
+        <div class="flex items-center gap-2">
+          <span class="text-white text-sm">💱</span>
+          <select id="currency-selector" 
+                  class="rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] text-sm font-bold px-3 border-2 border-transparent hover:border-blue-400 transition-all cursor-pointer">
+            <option value="MXN" selected>🇲🇽 MXN</option>
+            <option value="USD">🇺🇸 USD</option>
+            <option value="EUR">🇪🇺 EUR</option>
+            <option value="GBP">🇬🇧 GBP</option>
+            <option value="CAD">🇨🇦 CAD</option>
+            <option value="JPY">🇯🇵 JPY</option>
+            <option value="CNY">🇨🇳 CNY</option>
+            <option value="BRL">🇧🇷 BRL</option>
+            <option value="ARS">🇦🇷 ARS</option>
+            <option value="COP">🇨🇴 COP</option>
+          </select>
+        </div>
         </div>
       </header>
 
@@ -141,26 +153,26 @@
         <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
           
           <!-- Hero Section -->
-          <div id="hero-section" class="rounded-xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between shadow-lg bg-[#1e293b]">
+          <div id="hero-section" class="rounded-xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between shadow-lg bg-[#1e293b] dark:bg-gray-800">
             <div class="text-center md:text-left mb-6 md:mb-0">
-              <h1 class="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-4">
+              <h1 class="text-white dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-4">
                  Comparador de Periféricos
               </h1>
-              <p class="text-white text-base font-normal leading-normal">
+              <p class="text-white dark:text-gray-300 text-base font-normal leading-normal">
                 Compara especificaciones, precios y encuentra el mejor periférico para ti
               </p>
             </div>
             <div class="flex items-center gap-4">
-              <div class="bg-blue-500 text-white p-4 rounded-full">
+              <div class="bg-blue-500 dark:bg-blue-600 text-white p-4 rounded-full">
                 <span class="text-2xl">⚡</span>
               </div>
             </div>
           </div>
 
           <!-- Pestañas de Categorías -->
-          <div id="categorias-tabs" class="flex gap-2 mb-6 rounded-lg p-2 bg-[#324d67]">
+          <div id="categorias-tabs" class="flex gap-2 mb-6 rounded-lg p-2 bg-[#324d67] dark:bg-gray-800">
             @foreach($categorias as $categoria)
-              <button class="categoria-tab px-6 py-2 rounded-lg font-bold bg-[#1e293b] text-white hover:bg-[#3b82f6]" 
+              <button class="categoria-tab px-6 py-2 rounded-lg font-bold bg-[#1e293b] dark:bg-gray-700 text-white dark:text-gray-200 hover:bg-[#3b82f6] dark:hover:bg-blue-600 transition-colors" 
                       data-categoria="{{ $categoria->id }}">
                 {{ $categoria->nombre }}
               </button>
@@ -170,18 +182,18 @@
           <!-- Listas de productos por categoría -->
           @foreach($categorias as $categoria)
               <div class="lista-productos" data-categoria="{{ $categoria->id }}" style="display: none;">
-                <h3 class="text-white text-xl font-bold mb-4">Productos en {{ $categoria->nombre }}</h3>
+                <h3 class="text-white dark:text-white text-xl font-bold mb-4">Productos en {{ $categoria->nombre }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   @foreach($productos as $producto)
                     @if($producto->categoria_id == $categoria->id)
-                      <div class="card rounded-lg p-4 font-semibold bg-[#1e293b] border border-[#324d67]">
+                      <div class="card rounded-lg p-4 font-semibold bg-[#1e293b] dark:bg-gray-800 border border-[#324d67] dark:border-gray-700">
                         <div class="flex items-center gap-3 mb-2">
-                          <div class="bg-blue-500 p-2 rounded-lg">
+                          <div class="bg-blue-500 dark:bg-blue-600 p-2 rounded-lg">
                             <span class="text-white">{{ $producto->nombre }}</span>
                           </div>
                         </div>
-                        <p class="text-white text-sm">Precio: ${{ $producto->precio }}</p>
-                        <p class="text-gray-300 text-xs">{{ $producto->tipo_conectividad }}</p>
+                        <p class="text-white dark:text-gray-200 text-sm">Precio: ${{ $producto->precio }}</p>
+                        <p class="text-gray-300 dark:text-gray-400 text-xs">{{ $producto->tipo_conectividad }}</p>
                       </div>
                     @endif
                   @endforeach
@@ -190,32 +202,32 @@
             @endforeach
 
           <!-- Selectores para comparación -->
-          <div class="bg-[#1e293b] rounded-xl p-6 mb-8 shadow-lg">
-            <h2 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em] pb-4 border-b border-[#324d67] mb-6">
+          <div class="bg-[#1e293b] dark:bg-gray-800 rounded-xl p-6 mb-8 shadow-lg">
+            <h2 class="text-white dark:text-white text-2xl font-bold leading-tight tracking-[-0.015em] pb-4 border-b border-[#324d67] dark:border-gray-700 mb-6">
               Selecciona dos periféricos para comparar
             </h2>
             <div class="flex gap-6 mb-6">
               <div class="flex-1">
-                <label for="periferico1" class="block mb-3 font-semibold text-white flex items-center gap-2">
-                  <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
+                <label for="periferico1" class="block mb-3 font-semibold text-white dark:text-gray-200 flex items-center gap-2">
+                  <span class="bg-blue-500 dark:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
                   Primer Periférico
                 </label>
-                <select id="periferico1" class="select-dark w-full rounded-xl px-4 py-3 border border-[#324d67] focus:outline-none focus:ring-2 focus:ring-[#1172d4] focus:border-transparent transition-all">
+                <select id="periferico1" class="select-dark w-full rounded-xl px-4 py-3 border border-[#324d67] dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1172d4] dark:focus:ring-blue-500 focus:border-transparent transition-all">
                   <option value="">-- Selecciona --</option>
                 </select>
               </div>
               <div class="flex-1">
-                <label for="periferico2" class="block mb-3 font-semibold text-white flex items-center gap-2">
-                  <span class="bg-purple-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
+                <label for="periferico2" class="block mb-3 font-semibold text-white dark:text-gray-200 flex items-center gap-2">
+                  <span class="bg-purple-500 dark:bg-purple-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
                   Segundo Periférico
                 </label>
-                <select id="periferico2" class="select-dark w-full rounded-xl px-4 py-3 border border-[#324d67] focus:outline-none focus:ring-2 focus:ring-[#1172d4] focus:border-transparent transition-all">
+                <select id="periferico2" class="select-dark w-full rounded-xl px-4 py-3 border border-[#324d67] dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1172d4] dark:focus:ring-blue-500 focus:border-transparent transition-all">
                   <option value="">-- Selecciona --</option>
                 </select>
               </div>
             </div>
             <div class="flex justify-center">
-              <button id="comparar-btn" class="bg-gradient-to-r from-[#1172d4] to-[#3b82f6] hover:from-[#0f5ebd] hover:to-[#2563eb] text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+              <button id="comparar-btn" class="bg-gradient-to-r from-[#1172d4] to-[#3b82f6] hover:from-[#0f5ebd] hover:to-[#2563eb] dark:from-blue-600 dark:to-blue-500 dark:hover:from-blue-700 dark:hover:to-blue-600 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all">
                  Comparar Periféricos
               </button>
             </div>
@@ -320,10 +332,20 @@
           filtrados.forEach((p, index) => {
             console.log('  ' + (index + 1) + '. Agregando: ' + p.nombre + ' (ID: ' + p.id + ')');
             
-            // Crear opciones con más información
-            const optionText = p.nombre + ' - $' + p.precio;
-            select1.innerHTML += '<option value="' + p.id + '">' + optionText + '</option>';
-            select2.innerHTML += '<option value="' + p.id + '">' + optionText + '</option>';
+            // Crear opciones con más información y data attribute para conversión de moneda
+            const optionText = p.nombre + ' - $' + p.precio + ' MXN';
+            const option1 = document.createElement('option');
+            option1.value = p.id;
+            option1.textContent = optionText;
+            option1.dataset.priceMxn = p.precio; // Guardar precio original en MXN
+            
+            const option2 = document.createElement('option');
+            option2.value = p.id;
+            option2.textContent = optionText;
+            option2.dataset.priceMxn = p.precio; // Guardar precio original en MXN
+            
+            select1.appendChild(option1);
+            select2.appendChild(option2);
           });
           console.log('✅ SELECTS ACTUALIZADOS EXITOSAMENTE');
           console.log('🔢 Total opciones en select1:', select1.options.length);
@@ -432,15 +454,15 @@
           
           // Mostrar loading mejorado
           document.getElementById('resultado-comparacion').innerHTML = 
-            '<div class="bg-[#1e293b] rounded-xl p-8 text-center">' +
+            '<div class="bg-[#1e293b] dark:bg-gray-800 rounded-xl p-8 text-center">' +
               '<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>' +
-              '<h3 class="text-white text-xl font-bold mb-2">🔍 Comparando Productos</h3>' +
-              '<p class="text-gray-300">Obteniendo especificaciones detalladas y datos de Amazon...</p>' +
-              '<div class="mt-4 bg-[#0f172a] rounded-lg p-3">' +
-                '<div class="text-sm text-gray-400">📊 Datos locales... <span class="animate-pulse">⏳</span></div>' +
-                '<div class="text-sm text-green-400">🚀 Especificaciones Detalladas (1°)... <span class="animate-pulse">⏳</span></div>' +
-                '<div class="text-sm text-orange-400">🛒 Amazon (2°)... <span class="animate-pulse">⏳</span></div>' +
-                '<div class="text-xs text-gray-500 mt-2">Solo 2 secciones: Especificaciones → Amazon</div>' +
+              '<h3 class="text-white dark:text-white text-xl font-bold mb-2">🔍 Comparando Productos</h3>' +
+              '<p class="text-gray-300 dark:text-gray-400">Obteniendo especificaciones detalladas y datos de Amazon...</p>' +
+              '<div class="mt-4 bg-[#0f172a] dark:bg-gray-900 rounded-lg p-3">' +
+                '<div class="text-sm text-gray-400 dark:text-gray-500">📊 Datos locales... <span class="animate-pulse">⏳</span></div>' +
+                '<div class="text-sm text-green-400 dark:text-green-500">🚀 Especificaciones Detalladas (1°)... <span class="animate-pulse">⏳</span></div>' +
+                '<div class="text-sm text-orange-400 dark:text-orange-500">🛒 Amazon (2°)... <span class="animate-pulse">⏳</span></div>' +
+                '<div class="text-xs text-gray-500 dark:text-gray-600 mt-2">Solo 2 secciones: Especificaciones → Amazon</div>' +
               '</div>' +
             '</div>';
 
@@ -468,14 +490,14 @@
               
               // Actualizar loading con información PRIORITARIA del Node API
               document.getElementById('resultado-comparacion').innerHTML = 
-                '<div class="bg-[#1e293b] rounded-xl p-8 text-center">' +
+                '<div class="bg-[#1e293b] dark:bg-gray-800 rounded-xl p-8 text-center">' +
                   '<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>' +
-                  '<h3 class="text-white text-xl font-bold mb-2">🚀 Nueva API Implementada</h3>' +
-                  '<p class="text-gray-300">Obteniendo especificaciones detalladas (se mostrará PRIMERO)...</p>' +
-                  '<div class="mt-4 bg-[#0f172a] rounded-lg p-3 space-y-2">' +
-                    '<div class="text-sm text-blue-400">📊 Comparación local completada ✅</div>' +
-                    '<div class="text-sm text-green-400">🚀 ESPECIFICACIONES: "' + product1Name + '" vs "' + product2Name + '"</div>' +
-                    '<div class="text-xs text-gray-400">Vista simplificada: 1° Especificaciones → 2° Amazon</div>' +
+                  '<h3 class="text-white dark:text-white text-xl font-bold mb-2">🚀 Nueva API Implementada</h3>' +
+                  '<p class="text-gray-300 dark:text-gray-400">Obteniendo especificaciones detalladas (se mostrará PRIMERO)...</p>' +
+                  '<div class="mt-4 bg-[#0f172a] dark:bg-gray-900 rounded-lg p-3 space-y-2">' +
+                    '<div class="text-sm text-blue-400 dark:text-blue-500">📊 Comparación local completada ✅</div>' +
+                    '<div class="text-sm text-green-400 dark:text-green-500">🚀 ESPECIFICACIONES: "' + product1Name + '" vs "' + product2Name + '"</div>' +
+                    '<div class="text-xs text-gray-400 dark:text-gray-500">Vista simplificada: 1° Especificaciones → 2° Amazon</div>' +
                   '</div>' +
                 '</div>';
               
@@ -511,16 +533,16 @@
               
               // Actualizar loading con nombres específicos
               document.getElementById('resultado-comparacion').innerHTML = 
-                '<div class="bg-[#1e293b] rounded-xl p-8 text-center">' +
+                '<div class="bg-[#1e293b] dark:bg-gray-800 rounded-xl p-8 text-center">' +
                   '<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4"></div>' +
-                  '<h3 class="text-white text-xl font-bold mb-2">� Consultando APIs Externas</h3>' +
-                  '<p class="text-gray-300">Obteniendo especificaciones técnicas, precios de Amazon e historial de precios...</p>' +
-                  '<div class="mt-4 bg-[#0f172a] rounded-lg p-3 space-y-2">' +
-                    '<div class="text-sm text-blue-400">📊 Comparación local completada ✅</div>' +
-                    '<div class="text-sm text-green-400">🔧 Especificaciones: "' + product1.nombre + '"</div>' +
-                    '<div class="text-sm text-green-400">� Especificaciones: "' + product2.nombre + '"</div>' +
-                    '<div class="text-sm text-orange-400">🛒 Amazon: "' + product1.nombre + '"</div>' +
-                    '<div class="text-sm text-orange-400">� Amazon: "' + product2.nombre + '"</div>' +
+                  '<h3 class="text-white dark:text-white text-xl font-bold mb-2">� Consultando APIs Externas</h3>' +
+                  '<p class="text-gray-300 dark:text-gray-400">Obteniendo especificaciones técnicas, precios de Amazon e historial de precios...</p>' +
+                  '<div class="mt-4 bg-[#0f172a] dark:bg-gray-900 rounded-lg p-3 space-y-2">' +
+                    '<div class="text-sm text-blue-400 dark:text-blue-500">📊 Comparación local completada ✅</div>' +
+                    '<div class="text-sm text-green-400 dark:text-green-500">🔧 Especificaciones: "' + product1.nombre + '"</div>' +
+                    '<div class="text-sm text-green-400 dark:text-green-500">� Especificaciones: "' + product2.nombre + '"</div>' +
+                    '<div class="text-sm text-orange-400 dark:text-orange-500">🛒 Amazon: "' + product1.nombre + '"</div>' +
+                    '<div class="text-sm text-orange-400 dark:text-orange-500">� Amazon: "' + product2.nombre + '"</div>' +
                   '</div>' +
                 '</div>';
               
@@ -643,7 +665,7 @@
           } catch (error) {
             console.error('❌ Error en la comparación:', error);
             document.getElementById('resultado-comparacion').innerHTML = 
-              '<div class="bg-red-500 text-white p-4 rounded-lg">' +
+              '<div class="bg-red-500 dark:bg-red-600 text-white p-4 rounded-lg">' +
                 '<h4 class="font-bold mb-2">❌ Error en la Comparación</h4>' +
                 '<p>Ocurrió un problema al obtener los datos: ' + error.message + '</p>' +
                 '<div class="mt-2 text-sm opacity-80">Por favor, inténtalo de nuevo en unos momentos.</div>' +
@@ -664,18 +686,18 @@
         
         // Crear container principal
         const container = document.createElement('div');
-        container.className = 'bg-[#1e293b] rounded-xl p-6 mt-6 shadow-lg';
+        container.className = 'bg-[#1e293b] dark:bg-gray-800 rounded-xl p-6 mt-6 shadow-lg';
         
         // Título
         const title = document.createElement('h3');
-        title.className = 'text-white text-2xl font-bold mb-4 text-center';
-        title.innerHTML = '📊 Comparación Completa ' + (amazonData ? '<span class="text-orange-400">(🛒 + Amazon)</span>' : '');
+        title.className = 'text-white dark:text-white text-2xl font-bold mb-4 text-center';
+        title.innerHTML = '📊 Comparación Completa ' + (amazonData ? '<span class="text-orange-400 dark:text-orange-500">(🛒 + Amazon)</span>' : '');
         container.appendChild(title);
         
         // Indicador de tasa de cambio si hay datos de Amazon
         if (amazonData) {
           const exchangeRate = document.createElement('div');
-          exchangeRate.className = 'text-center mb-4 text-sm text-gray-400 bg-gray-800/50 p-2 rounded-lg';
+          exchangeRate.className = 'text-center mb-4 text-sm text-gray-400 dark:text-gray-500 bg-gray-800/50 dark:bg-gray-900/50 p-2 rounded-lg';
           exchangeRate.innerHTML = '💱 Tipo de cambio: 1 USD = $' + USD_TO_MXN_RATE.toFixed(2) + ' MXN (aproximado)';
           container.appendChild(exchangeRate);
         }
@@ -747,26 +769,27 @@
         console.log(`🏗️ Amazon Info:`, amazonInfo);
         console.log(`🏗️ Specs Info:`, specsInfo);
         const card = document.createElement('div');
-        card.className = 'bg-[#0f172a] p-6 rounded-lg border border-' + color + '-500';
+        card.className = 'bg-[#0f172a] dark:bg-gray-900 p-6 rounded-lg border border-' + color + '-500';
         
         // Header del producto
         const header = document.createElement('div');
         header.className = 'text-center mb-4';
         
         const name = document.createElement('h4');
-        name.className = 'font-bold text-xl mb-2 text-' + color + '-400';
+        name.className = 'font-bold text-xl mb-2 text-' + color + '-400 dark:text-' + color + '-500';
         name.textContent = producto.nombre;
         header.appendChild(name);
         
         const price = document.createElement('div');
-        price.className = 'text-2xl font-bold text-green-400 mb-2';
-        price.textContent = '$' + parseFloat(producto.precio).toLocaleString();
+        price.className = 'text-2xl font-bold text-green-400 dark:text-green-500 mb-2';
+        price.textContent = '$' + parseFloat(producto.precio).toLocaleString() + ' MXN';
+        price.dataset.priceMxn = producto.precio; // Guardar precio original para conversión
         header.appendChild(price);
         
         // Badge de modelo si existe
         if (producto.modelo) {
           const model = document.createElement('div');
-          model.className = 'text-sm text-gray-400 bg-gray-800 px-3 py-1 rounded-full inline-block';
+          model.className = 'text-sm text-gray-400 dark:text-gray-500 bg-gray-800 dark:bg-gray-700 px-3 py-1 rounded-full inline-block';
           model.textContent = '📦 ' + producto.modelo;
           header.appendChild(model);
         }
@@ -781,7 +804,7 @@
         if (producto.marca_nombre) {
           const brand = document.createElement('div');
           brand.className = 'flex justify-between text-sm';
-          brand.innerHTML = '<span class="text-gray-400">🏷️ Marca:</span><span class="text-white font-medium">' + producto.marca_nombre + '</span>';
+          brand.innerHTML = '<span class="text-gray-400 dark:text-gray-500">🏷️ Marca:</span><span class="text-white dark:text-gray-200 font-medium">' + producto.marca_nombre + '</span>';
           info.appendChild(brand);
         }
         
@@ -789,7 +812,7 @@
         if (producto.categoria_nombre) {
           const category = document.createElement('div');
           category.className = 'flex justify-between text-sm';
-          category.innerHTML = '<span class="text-gray-400">📂 Categoría:</span><span class="text-blue-300">' + producto.categoria_nombre.trim() + '</span>';
+          category.innerHTML = '<span class="text-gray-400 dark:text-gray-500">📂 Categoría:</span><span class="text-blue-300 dark:text-blue-400">' + producto.categoria_nombre.trim() + '</span>';
           info.appendChild(category);
         }
         
@@ -797,15 +820,15 @@
         if (producto.tipo_conectividad) {
           const connectivity = document.createElement('div');
           connectivity.className = 'flex justify-between text-sm';
-          connectivity.innerHTML = '<span class="text-gray-400">🔗 Conectividad:</span><span class="text-green-300">' + producto.tipo_conectividad + '</span>';
+          connectivity.innerHTML = '<span class="text-gray-400 dark:text-gray-500">🔗 Conectividad:</span><span class="text-green-300 dark:text-green-400">' + producto.tipo_conectividad + '</span>';
           info.appendChild(connectivity);
         }
         
         // Precio en pesos mexicanos
         const mxnPrice = document.createElement('div');
-        mxnPrice.className = 'bg-green-900/30 border border-green-500/30 p-3 rounded-lg mt-3';
+        mxnPrice.className = 'bg-green-900/30 dark:bg-green-900/20 border border-green-500/30 dark:border-green-600/30 p-3 rounded-lg mt-3';
         const localMxnPrice = parseFloat(producto.precio).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        mxnPrice.innerHTML = '<div class="text-center"><span class="text-gray-400 text-sm">💰 Precio Local</span><br><span class="text-green-400 text-xl font-bold">$' + localMxnPrice + ' MXN</span></div>';
+        mxnPrice.innerHTML = '<div class="text-center"><span class="text-gray-400 dark:text-gray-500 text-sm">💰 Precio Local</span><br><span class="text-green-400 dark:text-green-500 text-xl font-bold" data-price-mxn="' + producto.precio + '">$' + localMxnPrice + ' MXN</span></div>';
         info.appendChild(mxnPrice);
         
         card.appendChild(info);
@@ -816,11 +839,11 @@
           console.log('🛒 Amazon products:', amazonInfo);
           
           const amazonSection = document.createElement('div');
-          amazonSection.className = 'border-t border-orange-500/30 pt-4 mt-4 bg-orange-900/10 rounded-lg p-4';
+          amazonSection.className = 'border-t border-orange-500/30 pt-4 mt-4 bg-orange-900/10 dark:bg-orange-900/5 rounded-lg p-4';
           
           const amazonTitle = document.createElement('div');
-          amazonTitle.className = 'text-orange-400 font-semibold mb-3 flex items-center justify-between';
-          amazonTitle.innerHTML = '<span>🛒 Disponible en Amazon</span><span class="text-xs bg-orange-500 text-white px-2 py-1 rounded">EN VIVO</span>';
+          amazonTitle.className = 'text-orange-400 dark:text-orange-500 font-semibold mb-3 flex items-center justify-between';
+          amazonTitle.innerHTML = '<span>🛒 Disponible en Amazon</span><span class="text-xs bg-orange-500 dark:bg-orange-600 text-white px-2 py-1 rounded">EN VIVO</span>';
           amazonSection.appendChild(amazonTitle);
           
           const amazonProduct = amazonInfo[0]; // Primer producto del array
@@ -829,7 +852,7 @@
           // Título del producto Amazon
           if (amazonProduct.product_title) {
             const productTitle = document.createElement('div');
-            productTitle.className = 'text-sm text-gray-300 mb-3 font-medium line-clamp-2 border-l-2 border-orange-500 pl-3';
+            productTitle.className = 'text-sm text-gray-300 dark:text-gray-400 mb-3 font-medium line-clamp-2 border-l-2 border-orange-500 pl-3';
             productTitle.textContent = amazonProduct.product_title.substring(0, 120) + (amazonProduct.product_title.length > 120 ? '...' : '');
             amazonSection.appendChild(productTitle);
           }
@@ -838,17 +861,17 @@
           if (amazonProduct.product_price) {
             const priceConversion = convertUsdToMxn(amazonProduct.product_price);
             const amazonPriceSection = document.createElement('div');
-            amazonPriceSection.className = 'bg-orange-900/30 border border-orange-500/40 p-3 rounded-lg mb-3';
+            amazonPriceSection.className = 'bg-orange-900/30 dark:bg-orange-900/20 border border-orange-500/40 dark:border-orange-600/30 p-3 rounded-lg mb-3';
             
             if (priceConversion) {
               amazonPriceSection.innerHTML = 
                 '<div class="text-center space-y-1">' +
-                  '<div class="text-orange-300 text-sm">💰 Precio en Amazon</div>' +
-                  '<div class="text-orange-400 font-bold text-lg">' + priceConversion.mxnFormatted + '</div>' +
-                  '<div class="text-gray-400 text-xs">(' + priceConversion.usdFormatted + ')</div>' +
+                  '<div class="text-orange-300 dark:text-orange-400 text-sm">💰 Precio en Amazon</div>' +
+                  '<div class="text-orange-400 dark:text-orange-500 font-bold text-lg">' + priceConversion.mxnFormatted + '</div>' +
+                  '<div class="text-gray-400 dark:text-gray-500 text-xs">(' + priceConversion.usdFormatted + ')</div>' +
                 '</div>';
             } else {
-              amazonPriceSection.innerHTML = '<div class="text-center"><span class="text-orange-400 font-bold">' + amazonProduct.product_price + '</span></div>';
+              amazonPriceSection.innerHTML = '<div class="text-center"><span class="text-orange-400 dark:text-orange-500 font-bold">' + amazonProduct.product_price + '</span></div>';
             }
             
             amazonSection.appendChild(amazonPriceSection);
@@ -861,9 +884,9 @@
                 const discountBadge = document.createElement('div');
                 discountBadge.className = 'text-center mt-2';
                 discountBadge.innerHTML = 
-                  '<span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">' +
+                  '<span class="bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">' +
                   '🔥 ' + discount + '% DESCUENTO</span><br>' +
-                  '<span class="text-gray-500 line-through text-sm">Antes: ' + originalConversion.mxnFormatted + '</span>';
+                  '<span class="text-gray-500 dark:text-gray-600 line-through text-sm">Antes: ' + originalConversion.mxnFormatted + '</span>';
                 amazonSection.appendChild(discountBadge);
               }
             }
@@ -1226,6 +1249,35 @@
         youtubeSection.appendChild(youtubeTitle);
         youtubeSection.appendChild(youtubeContent);
         card.appendChild(youtubeSection);
+        
+        // ========================================
+        // SECCIÓN DE GOOGLE SHOPPING (COMPARACIÓN DE PRECIOS)
+        // ========================================
+        console.log('🛒 Agregando sección de Google Shopping para:', producto.nombre);
+        
+        const shoppingSection = document.createElement('div');
+        shoppingSection.className = 'border-t border-blue-500/30 pt-4 mt-4 bg-blue-900/10 rounded-lg p-4';
+        
+        const shoppingTitle = document.createElement('div');
+        shoppingTitle.className = 'text-blue-400 font-semibold mb-4 flex items-center justify-between cursor-pointer';
+        shoppingTitle.innerHTML = 
+          '<span>🛒 Comparar Precios en Tiendas</span>' +
+          '<button class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors" onclick="cargarPreciosTiendas(\'' + producto.nombre + '\', \'shopping_content_' + producto.id + '\')">💰 Ver Precios</button>';
+        
+        const shoppingContent = document.createElement('div');
+        shoppingContent.id = 'shopping_content_' + producto.id;
+        shoppingContent.className = 'mt-3';
+        shoppingContent.innerHTML = `
+          <div class="text-center text-gray-400 py-6 bg-gray-800/30 rounded-lg">
+            <div class="text-4xl mb-2">🏪</div>
+            <p class="text-sm">Haz click en "Ver Precios" para comparar en múltiples tiendas</p>
+            <p class="text-xs text-gray-500 mt-2">Amazon, Mercado Libre, Liverpool, y más...</p>
+          </div>
+        `;
+        
+        shoppingSection.appendChild(shoppingTitle);
+        shoppingSection.appendChild(shoppingContent);
+        card.appendChild(shoppingSection);
         
         return card;
       }
@@ -2023,11 +2075,364 @@
         }
       }
       
+      // ========================================
+      // FUNCIÓN PARA CARGAR PRECIOS DE GOOGLE SHOPPING
+      // ========================================
+      async function cargarPreciosTiendas(productName, contentId) {
+        console.log('🛒 Cargando precios de Google Shopping para:', productName);
+        
+        const contentDiv = document.getElementById(contentId);
+        
+        if (!contentDiv) {
+          console.error('❌ No se encontró el contenedor:', contentId);
+          return;
+        }
+        
+        // Mostrar loading
+        contentDiv.innerHTML = `
+          <div class="text-center py-6">
+            <div class="animate-spin inline-block w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full"></div>
+            <p class="text-gray-400 mt-3">Buscando mejores precios en tiendas online...</p>
+          </div>
+        `;
+        
+        try {
+          // Llamar a la API de Google Shopping para comparar precios
+          const response = await fetch('/api/google-shopping/compare-prices', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              query: productName,
+              limit: 10
+            })
+          });
+          
+          const data = await response.json();
+          
+          console.log('📦 Respuesta completa de Google Shopping:', JSON.stringify(data, null, 2));
+          console.log('✅ Success:', data.success);
+          console.log('📊 Data object:', data.data);
+          console.log('🛍️ Products array:', data.data?.products);
+          console.log('📏 Products length:', data.data?.products?.length);
+          
+          // Verificar si tenemos productos
+          const hasProducts = data.success && 
+                             data.data && 
+                             data.data.products && 
+                             Array.isArray(data.data.products) && 
+                             data.data.products.length > 0;
+          
+          console.log('🎯 Has products:', hasProducts);
+          
+          if (hasProducts) {
+            const products = data.data.products;
+            const priceAnalysis = data.data.price_analysis;
+            
+            let shoppingHTML = '';
+            
+            // Badge de modo demo si aplica
+            if (data.data.is_demo) {
+              shoppingHTML += `
+                <div class="mb-3 text-center">
+                  <span class="inline-block bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-semibold border border-yellow-500/30">
+                    🎭 MODO DEMOSTRACIÓN
+                  </span>
+                </div>
+              `;
+            }
+            
+            // Mostrar análisis de precios si está disponible
+            if (priceAnalysis && priceAnalysis.lowest) {
+              shoppingHTML += `
+                <div class="bg-gradient-to-r from-blue-900/40 to-green-900/40 rounded-lg p-4 mb-4 border border-blue-500/30">
+                  <h5 class="text-white font-bold text-center mb-3">
+                    <i class="fas fa-chart-line"></i> Análisis de Precios
+                  </h5>
+                  <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-green-900/30 rounded p-2">
+                      <div class="text-green-400 text-xs mb-1">💚 Más Bajo</div>
+                      <div class="text-white font-bold text-sm">$${priceAnalysis.lowest.price.toLocaleString('es-MX', {minimumFractionDigits: 2})}</div>
+                      <div class="text-gray-400 text-xs">${priceAnalysis.lowest.store}</div>
+                    </div>
+                    <div class="bg-blue-900/30 rounded p-2">
+                      <div class="text-blue-400 text-xs mb-1">📊 Promedio</div>
+                      <div class="text-white font-bold text-sm">$${priceAnalysis.average.toLocaleString('es-MX', {minimumFractionDigits: 2})}</div>
+                    </div>
+                    <div class="bg-yellow-900/30 rounded p-2">
+                      <div class="text-yellow-400 text-xs mb-1">💰 Ahorro</div>
+                      <div class="text-white font-bold text-sm">${priceAnalysis.savings_percentage}%</div>
+                      <div class="text-gray-400 text-xs">$${priceAnalysis.difference.toLocaleString('es-MX', {minimumFractionDigits: 2})}</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }
+            
+            // Grid de productos
+            shoppingHTML += '<div class="grid grid-cols-1 gap-3">';
+            
+            // Encontrar el precio más bajo
+            const lowestPrice = Math.min(...products.map(p => p.price_numeric).filter(p => p > 0));
+            
+            products.forEach((product, index) => {
+              const isBestPrice = product.price_numeric === lowestPrice && product.price_numeric > 0;
+              
+              shoppingHTML += `
+                <div class="bg-gray-800/50 rounded-lg overflow-hidden hover:bg-gray-800/70 transition-colors border ${isBestPrice ? 'border-green-500/50' : 'border-gray-700'}">
+                  <div class="flex gap-3 p-3">
+                    <!-- Imagen -->
+                    <div class="flex-shrink-0 w-20 h-20 relative rounded overflow-hidden group cursor-pointer">
+                      <img src="${product.image || 'https://via.placeholder.com/80x80?text=Sin+Imagen'}" 
+                           alt="${product.title}" 
+                           class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                           onerror="this.src='https://via.placeholder.com/80x80?text=Sin+Imagen'"
+                           onclick="window.open('${product.url}', '_blank')">
+                      ${isBestPrice ? '<div class="absolute top-0 right-0 bg-green-500 text-white text-xs px-1 py-0.5 font-bold">¡MEJOR!</div>' : ''}
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <h6 class="text-white text-xs font-medium mb-1 line-clamp-2 hover:text-blue-400 cursor-pointer" 
+                          onclick="window.open('${product.url}', '_blank')">
+                        ${product.title}
+                      </h6>
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-blue-400 text-xs">
+                          <i class="fas fa-store"></i> ${product.store}
+                        </span>
+                        ${product.rating ? `
+                          <span class="text-yellow-400 text-xs">
+                            <i class="fas fa-star"></i> ${product.rating}
+                          </span>
+                        ` : ''}
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-green-400 font-bold text-sm">
+                          ${product.price}
+                        </span>
+                        ${product.delivery ? `
+                          <span class="text-gray-500 text-xs">
+                            <i class="fas fa-shipping-fast"></i> ${product.delivery}
+                          </span>
+                        ` : ''}
+                      </div>
+                      <div class="mt-1">
+                        <a href="${product.url}" 
+                           target="_blank" 
+                           class="text-blue-400 hover:text-blue-300 text-xs font-medium">
+                          Ver en tienda →
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+            
+            shoppingHTML += '</div>';
+            
+            // Botón para ver más
+            shoppingHTML += `
+              <div class="mt-4 text-center">
+                <button onclick="cargarPreciosTiendas('${productName}', '${contentId}')" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  🔄 Actualizar Precios
+                </button>
+              </div>
+            `;
+            
+            contentDiv.innerHTML = shoppingHTML;
+            
+          } else {
+            contentDiv.innerHTML = `
+              <div class="text-center py-6 bg-gray-800/30 rounded-lg">
+                <div class="text-4xl mb-2">😕</div>
+                <p class="text-gray-400 text-sm">No se encontraron ofertas para este producto</p>
+                <button onclick="cargarPreciosTiendas('${productName}', '${contentId}')" 
+                        class="mt-3 text-blue-400 hover:text-blue-300 text-sm">
+                  🔄 Reintentar
+                </button>
+              </div>
+            `;
+          }
+          
+        } catch (error) {
+          console.error('❌ Error al cargar precios de Google Shopping:', error);
+          contentDiv.innerHTML = `
+            <div class="text-center py-6 bg-red-900/20 rounded-lg border border-red-500/30">
+              <div class="text-4xl mb-2">⚠️</div>
+              <p class="text-red-400 text-sm font-medium">Error al cargar precios</p>
+              <p class="text-gray-400 text-xs mt-1">${error.message}</p>
+              <button onclick="cargarPreciosTiendas('${productName}', '${contentId}')" 
+                      class="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                🔄 Reintentar
+              </button>
+            </div>
+          `;
+        }
+      }
+      
       // EJECUCIÓN FORZADA PARA TESTING
       setTimeout(() => {
         console.log('🚀 EJECUCIÓN FORZADA DE actualizarSelects después de 2 segundos...');
         actualizarSelects();
       }, 2000);
+      
+      
+      // ============================================
+      // 🌍 CURRENCY EXCHANGE INTEGRATION
+      // ============================================
+      
+      let currentCurrency = 'MXN';
+      let exchangeRates = null;
+      let ratesLastUpdated = null;
+      
+      // Obtener tasas de cambio desde el API
+      async function getExchangeRates(baseCurrency = 'MXN') {
+        try {
+          // Si ya tenemos tasas y no han pasado más de 1 hora, usar cache
+          if (exchangeRates && ratesLastUpdated && (Date.now() - ratesLastUpdated) < 3600000) {
+            console.log('💰 Usando tasas de cambio en caché');
+            return exchangeRates;
+          }
+          
+          console.log(`💱 Obteniendo tasas de cambio para ${baseCurrency}...`);
+          
+          const response = await fetch(`/api/currency/rates?base=${baseCurrency}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            exchangeRates = data.data.rates;
+            ratesLastUpdated = Date.now();
+            console.log('✅ Tasas de cambio obtenidas:', exchangeRates);
+            return exchangeRates;
+          } else {
+            throw new Error(data.message || 'Error al obtener tasas de cambio');
+          }
+        } catch (error) {
+          console.error('❌ Error al obtener tasas de cambio:', error);
+          // Retornar tasas mock en caso de error
+          return {
+            'USD': 0.057,
+            'EUR': 0.052,
+            'GBP': 0.045,
+            'CAD': 0.078,
+            'JPY': 8.77,
+            'CNY': 0.41,
+            'BRL': 0.33,
+            'ARS': 57.14,
+            'COP': 249.29
+          };
+        }
+      }
+      
+      // Convertir precio a la moneda seleccionada
+      function convertPrice(priceMXN, targetCurrency) {
+        if (targetCurrency === 'MXN') {
+          return priceMXN;
+        }
+        
+        if (!exchangeRates || !exchangeRates[targetCurrency]) {
+          console.warn('⚠️ No hay tasa de cambio disponible para', targetCurrency);
+          return priceMXN;
+        }
+        
+        return priceMXN * exchangeRates[targetCurrency];
+      }
+      
+      // Formatear precio con el símbolo de moneda apropiado
+      function formatCurrency(amount, currency) {
+        const symbols = {
+          'USD': '$',
+          'MXN': '$',
+          'EUR': '€',
+          'GBP': '£',
+          'CAD': 'CA$',
+          'JPY': '¥',
+          'CNY': '¥',
+          'BRL': 'R$',
+          'ARS': '$',
+          'COP': '$'
+        };
+        
+        const decimals = currency === 'JPY' ? 0 : 2;
+        const formattedAmount = amount.toLocaleString('es-MX', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+        
+        return `${symbols[currency] || '$'}${formattedAmount} ${currency}`;
+      }
+      
+      // Actualizar todos los precios en la página
+      async function updateAllPrices(newCurrency) {
+        console.log(`💱 Actualizando precios a ${newCurrency}...`);
+        
+        // Obtener tasas de cambio
+        await getExchangeRates('MXN');
+        
+        // Actualizar variable global
+        currentCurrency = newCurrency;
+        
+        // Actualizar precios de productos en selectores
+        const selects = document.querySelectorAll('select[id^="periferico"]');
+        selects.forEach(select => {
+          Array.from(select.options).forEach(option => {
+            if (option.value && option.dataset.priceMxn) {
+              const priceMXN = parseFloat(option.dataset.priceMxn);
+              const convertedPrice = convertPrice(priceMXN, newCurrency);
+              const formattedPrice = formatCurrency(convertedPrice, newCurrency);
+              
+              // Actualizar texto de la opción manteniendo el nombre del producto
+              const productName = option.text.split(' - ')[0];
+              option.text = `${productName} - ${formattedPrice}`;
+            }
+          });
+        });
+        
+        // Actualizar precios en tarjetas de comparación si existen
+        const priceElements = document.querySelectorAll('[data-price-mxn]');
+        priceElements.forEach(element => {
+          const priceMXN = parseFloat(element.dataset.priceMxn);
+          const convertedPrice = convertPrice(priceMXN, newCurrency);
+          const formattedPrice = formatCurrency(convertedPrice, newCurrency);
+          element.textContent = formattedPrice;
+        });
+        
+        console.log(`✅ Precios actualizados a ${newCurrency}`);
+      }
+      
+      // Event listener para el selector de moneda
+      document.getElementById('currency-selector').addEventListener('change', async function(e) {
+        const newCurrency = e.target.value;
+        console.log(`🔄 Cambiando moneda a: ${newCurrency}`);
+        
+        // Mostrar indicador de carga (opcional)
+        const originalText = e.target.options[e.target.selectedIndex].text;
+        e.target.options[e.target.selectedIndex].text = '⏳ Cargando...';
+        e.target.disabled = true;
+        
+        try {
+          await updateAllPrices(newCurrency);
+        } catch (error) {
+          console.error('❌ Error al actualizar precios:', error);
+          alert('Error al convertir moneda. Por favor intenta de nuevo.');
+        } finally {
+          // Restaurar selector
+          e.target.options[e.target.selectedIndex].text = originalText;
+          e.target.disabled = false;
+        }
+      });
+      
+      // Cargar tasas de cambio al iniciar la página
+      document.addEventListener('DOMContentLoaded', async function() {
+        console.log('💱 Cargando tasas de cambio iniciales...');
+        await getExchangeRates('MXN');
+        console.log('✅ Sistema de conversión de moneda listo');
+      });
       
     </script>
     

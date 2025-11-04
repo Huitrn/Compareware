@@ -9,6 +9,8 @@ use App\Http\Controllers\ComparacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EnvironmentTestController;
 use App\Http\Controllers\YouTubeController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\GoogleShoppingController;
 
 // Rutas de vistas
 
@@ -75,6 +77,18 @@ Route::post('/comparar-perifericos', [ComparacionController::class, 'comparar'])
 // Rutas de autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+
+// Ruta de depuración de sesión/CSRF (solo desarrollo)
+if (app()->environment('local','sandbox')) {
+    Route::get('/debug-session', function(\Illuminate\Http\Request $request) {
+        $request->session()->put('debug_ping', ($request->session()->get('debug_ping', 0) + 1));
+        return response()->json([
+            'session_id' => $request->session()->getId(),
+            'debug_ping' => $request->session()->get('debug_ping'),
+            'has_csrf_token' => csrf_token() !== null,
+        ]);
+    });
+}
 Route::get('/registro', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -645,3 +659,13 @@ Route::get('/environment/switch/{environment}', function($environment) {
 // RUTAS DE PRUEBA PARA YOUTUBE API
 // ============================================
 Route::get('/test/youtube', [YouTubeController::class, 'testView'])->name('test.youtube');
+
+// ============================================
+// RUTAS DE PRUEBA PARA CURRENCY EXCHANGE API
+// ============================================
+Route::get('/test/currency', [CurrencyController::class, 'testView'])->name('test.currency');
+
+// ============================================
+// RUTAS DE PRUEBA PARA GOOGLE SHOPPING API
+// ============================================
+Route::get('/test/google-shopping', [GoogleShoppingController::class, 'testView'])->name('test.google-shopping');

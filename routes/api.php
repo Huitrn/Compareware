@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\YouTubeController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\GoogleShoppingController;
 use App\Models\Periferico;
 use App\Models\Categoria;
 
@@ -62,4 +64,35 @@ Route::prefix('youtube')->group(function () {
     
     // Obtener detalles de un video específico
     Route::post('/video-details', [YouTubeController::class, 'getVideoDetails']);
+});
+
+// ============================================
+// RUTAS DE CURRENCY API
+// ============================================
+Route::prefix('currency')->group(function () {
+    // Convertir entre dos monedas
+    Route::post('/convert', [CurrencyController::class, 'convert']);
+    
+    // Convertir a multiples monedas
+    Route::post('/convert-multiple', [CurrencyController::class, 'convertMultiple']);
+    
+    // Obtener todas las tasas de cambio
+    Route::get('/rates', [CurrencyController::class, 'getRates']);
+    
+    // Obtener monedas soportadas
+    Route::get('/supported', [CurrencyController::class, 'getSupportedCurrencies']);
+});
+
+// ============================================
+// RUTAS DE GOOGLE SHOPPING API
+// ============================================
+Route::prefix('google-shopping')->group(function () {
+    // Buscar productos en Google Shopping
+    Route::post('/search', [GoogleShoppingController::class, 'searchProducts']);
+    
+    // Obtener detalles de un producto específico
+    Route::post('/product-details', [GoogleShoppingController::class, 'getProductDetails']);
+    
+    // Comparar precios entre múltiples tiendas
+    Route::post('/compare-prices', [GoogleShoppingController::class, 'comparePrices']);
 });

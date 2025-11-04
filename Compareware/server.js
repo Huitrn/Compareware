@@ -10,9 +10,8 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configura tu conexión PostgreSQL aquí
 const pool = new Pool({
-  connectionString: 'postgres://postgres:[YOUR-PASSWORD]@db.nhjzwkjjmjqwphpobkrr.supabase.co:5432/postgres',
+  connectionString: 'postgres://postgres:[123456789]@db.nhjzwkjjmjqwphpobkrr.supabase.co:5432/postgres',
   ssl: {
     rejectUnauthorized: false
   }

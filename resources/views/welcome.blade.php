@@ -12,12 +12,15 @@
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = { darkMode: 'class' }
+    </script>
   </head>
   <body>
-    <div class="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+    <div class="relative flex size-full min-h-screen flex-col bg-slate-50 dark:bg-gray-900 group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
       <div class="layout-container flex h-full grow flex-col">
-        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] px-10 py-3">
-          <div class="flex items-center gap-4 text-[#0d141c]">
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] dark:border-b-gray-700 px-10 py-3 bg-slate-50 dark:bg-gray-800">
+          <div class="flex items-center gap-4 text-[#0d141c] dark:text-white">
             <div class="size-4">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -26,22 +29,32 @@
                 ></path>
               </svg>
             </div>
-            <a href="{{ route('home') }}" class="logo-link text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">CompareWare</a>
+            <a href="{{ route('home') }}" class="logo-link text-[#0d141c] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">CompareWare</a>
           </div>
           <div class="flex flex-1 justify-end gap-8">
             <div class="flex items-center gap-9">
-              <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="{{ route('marcas') }}">Marcas</a>
-              <a class="nav-link text-[#0d141c] text-sm font-medium leading-normal" href="#">Contacto</a>
+              <a class="nav-link text-[#0d141c] dark:text-gray-300 text-sm font-medium leading-normal hover:text-blue-600 dark:hover:text-blue-400" href="{{ route('marcas') }}">Marcas</a>
+              <a class="nav-link text-[#0d141c] dark:text-gray-300 text-sm font-medium leading-normal hover:text-blue-600 dark:hover:text-blue-400" href="#">Contacto</a>
             </div>
             <div class="flex gap-2">
+              <!-- Botón de tema -->
+              <button
+                id="theme-toggle"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#e7edf4] dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" class="text-amber-500 dark:text-amber-300">
+                  <path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path>
+                </svg>
+              </button>
+
               @auth
                 <!-- Usuario autenticado -->
-                <span class="text-[#0d141c] text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
+                <span class="text-[#0d141c] dark:text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                   @csrf
                   <button
                     type="submit"
-                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-red-600 text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-red-700"
+                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-red-600 text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-red-700 transition-colors"
                   >
                     Cerrar sesión
                   </button>
@@ -50,13 +63,13 @@
                 <!-- Usuario no autenticado -->
                 <a
                   href="{{ route('login') }}"
-                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#0d80f2] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-blue-600"
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#0d80f2] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-blue-600 transition-colors"
                 >
                   Iniciar sesión
                 </a>
                 <a
                   href="{{ route('register') }}"
-                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-gray-200"
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] dark:bg-gray-700 text-[#0d141c] dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Registrarse
                 </a>
@@ -80,24 +93,10 @@
                   </div>
                 @endif
               @endauth
-              
-              <button
-                id="theme-toggle"
-                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-              >
-                <div class="text-[#0d141c]" data-icon="Sun" data-size="20px" data-weight="regular">
-                  <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                    <path
-                      d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"
-                    ></path>
-                  </svg>
-                </div>
-              </button>
-        </div>
             </div>
           </div>
         </header>
-        <div class="px-40 flex flex-1 justify-center py-5">
+        <div class="px-40 flex flex-1 justify-center py-5 bg-slate-50 dark:bg-gray-900">
           <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
             <div class="@container">
               <div class="@[480px]:p-4">
@@ -127,14 +126,14 @@
             <div class="flex flex-col gap-10 px-4 py-10 @container">
               <div class="flex flex-col gap-4">
                 <h1
-                  class="text-[#0d141c] tracking-light text-[32px] font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-[720px]"
+                  class="text-[#0d141c] dark:text-white tracking-light text-[32px] font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-[720px]"
                 >
                   Cómo funciona
                 </h1>
-                <p class="text-[#0d141c] text-base font-normal leading-normal max-w-[720px]">Descubre lo fácil que es encontrar los periféricos ideales con CompareWare.</p>
+                <p class="text-[#0d141c] dark:text-gray-300 text-base font-normal leading-normal max-w-[720px]">Descubre lo fácil que es encontrar los periféricos ideales con CompareWare.</p>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-0">
-                <div class="flex flex-1 gap-3 rounded-lg border border-[#cedbe8] bg-slate-50 p-4 flex-col">
+                <div class="flex flex-1 gap-3 rounded-lg border border-[#cedbe8] dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-4 flex-col">
                   <div class="text-[#0d141c]" data-icon="MagnifyingGlass" data-size="24px" data-weight="regular">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                       <path
@@ -148,7 +147,7 @@
                   </div>
                 </div>
                 <div class="flex flex-1 gap-3 rounded-lg border border-[#cedbe8] bg-slate-50 p-4 flex-col">
-                  <div class="text-[#0d141c]" data-icon="ListBullets" data-size="24px" data-weight="regular">
+                  <div class="text-[#0d141c] dark:text-white" data-icon="ListBullets" data-size="24px" data-weight="regular">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                       <path
                         d="M80,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H88A8,8,0,0,1,80,64Zm136,56H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM44,52A12,12,0,1,0,56,64,12,12,0,0,0,44,52Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,116Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,180Z"
@@ -156,12 +155,12 @@
                     </svg>
                   </div>
                   <div class="flex flex-col gap-1">
-                    <h2 class="text-[#0d141c] text-base font-bold leading-tight">Analiza</h2>
-                    <p class="text-[#49739c] text-sm font-normal leading-normal">Analiza las opiniones de otros usuarios y las calificaciones para obtener una visión completa.</p>
+                    <h2 class="text-[#0d141c] dark:text-white text-base font-bold leading-tight">Analiza</h2>
+                    <p class="text-[#49739c] dark:text-gray-400 text-sm font-normal leading-normal">Analiza las opiniones de otros usuarios y las calificaciones para obtener una visión completa.</p>
                   </div>
                 </div>
-                <div class="flex flex-1 gap-3 rounded-lg border border-[#cedbe8] bg-slate-50 p-4 flex-col">
-                  <div class="text-[#0d141c]" data-icon="UsersThree" data-size="24px" data-weight="regular">
+                <div class="flex flex-1 gap-3 rounded-lg border border-[#cedbe8] dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-4 flex-col">
+                  <div class="text-[#0d141c] dark:text-white" data-icon="UsersThree" data-size="24px" data-weight="regular">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                       <path
                         d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"
@@ -169,22 +168,22 @@
                     </svg>
                   </div>
                   <div class="flex flex-col gap-1">
-                    <h2 class="text-[#0d141c] text-base font-bold leading-tight">Decide</h2>
-                    <p class="text-[#49739c] text-sm font-normal leading-normal">Toma una decisión informada y elige el periférico que mejor se adapte a tus necesidades.</p>
+                    <h2 class="text-[#0d141c] dark:text-white text-base font-bold leading-tight">Decide</h2>
+                    <p class="text-[#49739c] dark:text-gray-400 text-sm font-normal leading-normal">Toma una decisión informada y elige el periférico que mejor se adapte a tus necesidades.</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <footer class="flex justify-center">
+        <footer class="flex justify-center bg-slate-50 dark:bg-gray-800">
           <div class="flex max-w-[960px] flex-1 flex-col">
             <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
               <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
-                <a class="nav-link text-[#49739c] text-base font-normal leading-normal min-w-40" href="{{ route('marcas') }}">Marcas</a>
-                <a class="nav-link text-[#49739c] text-base font-normal leading-normal min-w-40" href="#">Contacto</a>
+                <a class="nav-link text-[#49739c] dark:text-gray-400 text-base font-normal leading-normal min-w-40 hover:text-blue-600 dark:hover:text-blue-400" href="{{ route('marcas') }}">Marcas</a>
+                <a class="nav-link text-[#49739c] dark:text-gray-400 text-base font-normal leading-normal min-w-40 hover:text-blue-600 dark:hover:text-blue-400" href="#">Contacto</a>
               </div>
-              <p class="text-[#49739c] text-base font-normal leading-normal">© 2025 CompareWare. Todos los derechos reservados.</p>
+              <p class="text-[#49739c] dark:text-gray-400 text-base font-normal leading-normal">© 2025 CompareWare. Todos los derechos reservados.</p>
             </footer>
           </div>
         </footer>
