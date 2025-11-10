@@ -67,6 +67,17 @@ Route::prefix('youtube')->group(function () {
 });
 
 // ============================================
+// RUTAS DE COMPARACIÓN CON IMÁGENES
+// ============================================
+Route::prefix('comparacion')->group(function () {
+    // Obtener comparación con imágenes incluidas
+    Route::get('/{id}/with-images', [App\Http\Controllers\ComparacionController::class, 'getComparisonWithImages']);
+    
+    // Obtener datos de comparación en formato JSON
+    Route::get('/compare-products', [App\Http\Controllers\ComparacionController::class, 'compareProductsWithImages']);
+});
+
+// ============================================
 // RUTAS DE CURRENCY API
 // ============================================
 Route::prefix('currency')->group(function () {

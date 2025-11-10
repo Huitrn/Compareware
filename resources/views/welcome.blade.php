@@ -76,7 +76,7 @@
               @endauth
 
               @auth
-                @if(Auth::user()->role === 'admin')
+                @if(Auth::user()->isAdmin())
                   <div class="flex gap-2">
                     <a
                       href="{{ route('admin.access') }}"
@@ -91,6 +91,24 @@
                       <span class="truncate">🚀 Directo</span>
                     </a>
                   </div>
+                @endif
+
+                @if(Auth::user()->isSupervisor())
+                  <a
+                    href="{{ route('supervisor.dashboard') }}"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-green-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-green-700 transition-colors"
+                  >
+                    <span class="truncate">📊 Panel Supervisor</span>
+                  </a>
+                @endif
+
+                @if(Auth::user()->isDeveloper())
+                  <a
+                    href="{{ route('developer.dashboard') }}"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-amber-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-amber-700 transition-colors"
+                  >
+                    <span class="truncate">🔧 Panel Developer</span>
+                  </a>
                 @endif
               @endauth
             </div>
