@@ -35,6 +35,15 @@ class Periferico extends Model
         'marca_id',
         'categoria_id',
         'imagen_url',
+        'imagen_alt',
+        'galeria_imagenes',
+        'imagen_path',
+        'imagen_blob',
+        'imagen_mime_type',
+        'thumbnail_url',
+        'imagen_source',
+        'amazon_url',
+        'amazon_asin',
         'especificaciones',
         'is_active'
     ];
@@ -45,6 +54,7 @@ class Periferico extends Model
     protected $casts = [
         'precio' => 'decimal:2',
         'especificaciones' => 'json',
+        'galeria_imagenes' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'approved_at' => 'datetime',
@@ -58,6 +68,14 @@ class Periferico extends Model
     protected $hidden = [
         'admin_notes',
         'created_by'
+    ];
+
+    /**
+     * Atributos que se agregan a la serialización
+     */
+    protected $appends = [
+        'imagen_url_completa',
+        'thumbnail_url_completa'
     ];
 
     /**
@@ -333,5 +351,184 @@ class Periferico extends Model
         }
         
         return $user->isAdmin() || $this->created_by === $user->id;
+    }
+
+    /**
+     * ========================================
+     * MÉTODOS DE GESTIÓN DE IMÁGENES
+     * ========================================
+     */
+
+    /**
+     * Obtener URL completa de la imagen o placeholder si no existe
+     * Prioridad: 1) Archivo local, 2) BLOB en BD, 3) URL externa, 4) Placeholder
+     */
+    public function getImagenUrlCompletaAttribute(): string
+    {
+        // 1. Si tiene archivo local guardado
+        if ($this->imagen_path) {
+            return asset('storage/' . $this->imagen_path);
+        }
+        
+        // 2. Si tiene BLOB en base de datos
+        if ($this->imagen_blob) {
+            return route('images.show', ['id' => $this->id]);
+        }
+        
+        // 3. Si tiene URL externa
+        if ($this->imagen_url) {
+            // Si es URL completa (http/https)
+            if (filter_var($this->imagen_url, FILTER_VALIDATE_URL)) {
+                return $this->imagen_url;
+            }
+            // Si es path relativo
+            return asset('storage/' . $this->imagen_url);
+        }
+        
+        // 4. Imagen placeholder por defecto
+        return asset('images/placeholder-product.png');
+    }
+
+    /**
+     * Obtener URL del thumbnail o generar desde imagen principal
+     */
+    public function getThumbnailUrlCompletaAttribute(): string
+    {
+        if ($this->thumbnail_url) {
+            if (filter_var($this->thumbnail_url, FILTER_VALIDATE_URL)) {
+                return $this->thumbnail_url;
+            }
+            return asset('storage/' . $this->thumbnail_url);
+        }
+        
+        // Si no hay thumbnail, usar imagen principal
+        return $this->imagen_url_completa;
+    }
+
+    /**
+     * Verificar si tiene imagen
+     */
+    public function hasImage(): bool
+    {
+        return !empty($this->imagen_url);
+    }
+
+    /**
+     * Verificar si tiene galería de imágenes
+     */
+    public function hasGallery(): bool
+    {
+        return !empty($this->galeria_imagenes) && is_array($this->galeria_imagenes);
+    }
+
+    /**
+     * Obtener cantidad de imágenes en la galería
+     */
+    public function getGalleryCountAttribute(): int
+    {
+        if (!$this->hasGallery()) {
+            return 0;
+        }
+        return count($this->galeria_imagenes);
+    }
+
+    /**
+     * Obtener todas las URLs de imágenes (principal + galería)
+     */
+    public function getAllImagesAttribute(): array
+    {
+        $images = [];
+        
+        // Agregar imagen principal
+        if ($this->hasImage()) {
+            $images[] = [
+                'url' => $this->imagen_url_completa,
+                'alt' => $this->imagen_alt ?? $this->nombre,
+                'type' => 'main'
+            ];
+        }
+        
+        // Agregar galería
+        if ($this->hasGallery()) {
+            foreach ($this->galeria_imagenes as $index => $imagen) {
+                $images[] = [
+                    'url' => is_array($imagen) ? ($imagen['url'] ?? $imagen) : $imagen,
+                    'alt' => is_array($imagen) ? ($imagen['alt'] ?? $this->nombre) : $this->nombre,
+                    'type' => 'gallery',
+                    'index' => $index
+                ];
+            }
+        }
+        
+        return $images;
+    }
+
+    /**
+     * Agregar imagen a la galería
+     */
+    public function addToGallery(string $imageUrl, ?string $alt = null): void
+    {
+        $galeria = $this->galeria_imagenes ?? [];
+        
+        $galeria[] = [
+            'url' => $imageUrl,
+            'alt' => $alt ?? $this->nombre,
+            'added_at' => now()->toISOString()
+        ];
+        
+        $this->galeria_imagenes = $galeria;
+        $this->save();
+    }
+
+    /**
+     * Eliminar imagen de la galería por índice
+     */
+    public function removeFromGallery(int $index): bool
+    {
+        if (!$this->hasGallery() || !isset($this->galeria_imagenes[$index])) {
+            return false;
+        }
+        
+        $galeria = $this->galeria_imagenes;
+        unset($galeria[$index]);
+        $this->galeria_imagenes = array_values($galeria); // Reindexar
+        $this->save();
+        
+        return true;
+    }
+
+    /**
+     * Mutator para imagen_alt - sanitización
+     */
+    public function setImagenAltAttribute($value): void
+    {
+        if (empty($value)) {
+            $this->attributes['imagen_alt'] = $this->nombre ?? 'Imagen de producto';
+            return;
+        }
+        
+        // Sanitizar y limitar longitud
+        $sanitized = strip_tags($value);
+        $sanitized = substr($sanitized, 0, 255);
+        
+        $this->attributes['imagen_alt'] = $sanitized;
+    }
+
+    /**
+     * Obtener datos completos de imagen para APIs/JSON
+     */
+    public function getImageDataAttribute(): array
+    {
+        return [
+            'main' => [
+                'url' => $this->imagen_url_completa,
+                'thumbnail' => $this->thumbnail_url_completa,
+                'alt' => $this->imagen_alt ?? $this->nombre,
+                'source' => $this->imagen_source ?? 'manual'
+            ],
+            'gallery' => $this->all_images,
+            'has_image' => $this->hasImage(),
+            'gallery_count' => $this->gallery_count
+        ];
     }
 }

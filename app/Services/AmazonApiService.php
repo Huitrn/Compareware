@@ -290,6 +290,9 @@ class AmazonApiService
     {
         $searchQuery = $brand ? "$brand $searchTerm wireless headphones" : "$searchTerm wireless headphones";
         
+        // Generar URL de imagen basada en el tipo de producto y marca
+        $imageUrl = $this->getGenericProductImage($searchTerm, $brand);
+        
         return [
             [
                 'asin' => 'REAL_GENERIC_SEARCH',
@@ -299,7 +302,7 @@ class AmazonApiService
                 'product_star_rating' => number_format(rand(38, 48) / 10, 1),
                 'product_num_ratings' => rand(500, 5000),
                 'product_url' => $this->generateAmazonSearchUrl($searchQuery),
-                'product_photo' => 'https://via.placeholder.com/300x300?text=Product',
+                'product_photo' => $imageUrl,
                 'is_prime' => true,
                 'delivery' => 'FREE delivery within 2-3 days',
                 '_real_amazon_search' => true,
@@ -310,6 +313,121 @@ class AmazonApiService
                 ]
             ]
         ];
+    }
+    
+    /**
+     * Obtener imagen genérica de producto basada en marca y tipo
+     */
+    private function getGenericProductImage($productName, $brand = null)
+    {
+        $name = strtolower($productName);
+        $brandLower = strtolower($brand ?? '');
+        
+        // Primero intentar match exacto por modelo específico
+        $specificImage = $this->getSpecificProductImage($name, $brandLower);
+        if ($specificImage) {
+            return $specificImage;
+        }
+        
+        // Si no hay match específico, usar imagen por marca
+        $brandImages = [
+            'logitech' => 'https://m.media-amazon.com/images/I/61ni3t1ryQL._AC_SX466_.jpg',
+            'razer' => 'https://m.media-amazon.com/images/I/61gcJL3TOZL._AC_SX466_.jpg',
+            'corsair' => 'https://m.media-amazon.com/images/I/61yVBleN8GL._AC_SX466_.jpg',
+            'steelseries' => 'https://m.media-amazon.com/images/I/61HXm8D8EcL._AC_SX466_.jpg',
+            'hyperx' => 'https://m.media-amazon.com/images/I/61CGYwdVF0L._AC_SX466_.jpg',
+            'sony' => 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX466_.jpg',
+            'bose' => 'https://m.media-amazon.com/images/I/51JQEIbWlsL._AC_SX466_.jpg',
+            'apple' => 'https://m.media-amazon.com/images/I/61SUj2aKoEL._AC_SX466_.jpg',
+            'samsung' => 'https://m.media-amazon.com/images/I/61RJn0ofUsL._AC_SX466_.jpg',
+            'jbl' => 'https://m.media-amazon.com/images/I/61R7mHO6AJL._AC_SX466_.jpg',
+            'sennheiser' => 'https://m.media-amazon.com/images/I/71Tt-gJxFoL._AC_SX466_.jpg',
+            'microsoft' => 'https://m.media-amazon.com/images/I/61x3p3QqLgL._AC_SX466_.jpg',
+            'asus' => 'https://m.media-amazon.com/images/I/71UQXPk4qrL._AC_SX466_.jpg',
+            'hp' => 'https://m.media-amazon.com/images/I/51nIAAcmAZL._AC_SX466_.jpg',
+            'msi' => 'https://m.media-amazon.com/images/I/81D8pNFmWzL._AC_SX466_.jpg',
+        ];
+        
+        // Buscar imagen por marca
+        foreach ($brandImages as $brandKey => $imageUrl) {
+            if (str_contains($brandLower, $brandKey)) {
+                return $imageUrl;
+            }
+        }
+        
+        // Imágenes por tipo de producto como fallback
+        if (str_contains($name, 'mouse') || str_contains($name, 'ratón')) {
+            return 'https://m.media-amazon.com/images/I/61ni3t1ryQL._AC_SX466_.jpg';
+        } elseif (str_contains($name, 'teclado') || str_contains($name, 'keyboard')) {
+            return 'https://m.media-amazon.com/images/I/71cF26SSStL._AC_SX466_.jpg';
+        } elseif (str_contains($name, 'auricular') || str_contains($name, 'headphone') || str_contains($name, 'headset')) {
+            return 'https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SX466_.jpg';
+        } elseif (str_contains($name, 'webcam') || str_contains($name, 'cámara')) {
+            return 'https://m.media-amazon.com/images/I/61XXQc3K7HL._AC_SX466_.jpg';
+        } elseif (str_contains($name, 'micrófono') || str_contains($name, 'microphone')) {
+            return 'https://m.media-amazon.com/images/I/61c2bCEt-LL._AC_SX466_.jpg';
+        } elseif (str_contains($name, 'monitor')) {
+            return 'https://m.media-amazon.com/images/I/81wF7FDDBtL._AC_SX466_.jpg';
+        }
+        
+        // Imagen por defecto
+        return 'https://m.media-amazon.com/images/I/61ni3t1ryQL._AC_SX466_.jpg';
+    }
+    
+    /**
+     * Obtener imagen específica para modelos exactos de productos
+     */
+    private function getSpecificProductImage($name, $brand)
+    {
+        // Base de datos de imágenes reales de Amazon para modelos específicos
+        $specificProducts = [
+            // === LOGITECH ===
+            'g502 hero' => 'https://m.media-amazon.com/images/I/61mpMH5TzkL._AC_SX466_.jpg',
+            'mx master 3' => 'https://m.media-amazon.com/images/I/61ni3t1ryQL._AC_SX466_.jpg',
+            'g915 tkl' => 'https://m.media-amazon.com/images/I/71cF26SSStL._AC_SX466_.jpg',
+            'g pro x' => 'https://m.media-amazon.com/images/I/61j9BmNa7WL._AC_SX466_.jpg',
+            'c920' => 'https://m.media-amazon.com/images/I/61XXQc3K7HL._AC_SX466_.jpg',
+            'brio 4k' => 'https://m.media-amazon.com/images/I/71k8geW-ltL._AC_SX466_.jpg',
+            
+            // === RAZER ===
+            'deathadder v2' => 'https://m.media-amazon.com/images/I/61gcJL3TOZL._AC_SX466_.jpg',
+            'viper ultimate' => 'https://m.media-amazon.com/images/I/71exqp0kXNL._AC_SX466_.jpg',
+            'blackwidow v3' => 'https://m.media-amazon.com/images/I/71kwl9p9BrL._AC_SX466_.jpg',
+            'blackshark v2' => 'https://m.media-amazon.com/images/I/61oU76YCZvL._AC_SX466_.jpg',
+            'kiyo' => 'https://m.media-amazon.com/images/I/61HcNLKYrYL._AC_SX466_.jpg',
+            'seiren mini' => 'https://m.media-amazon.com/images/I/51MEp8vgP-L._AC_SX466_.jpg',
+            
+            // === CORSAIR ===
+            'k70 rgb' => 'https://m.media-amazon.com/images/I/81LhJGuoXOL._AC_SX466_.jpg',
+            'hs70 pro' => 'https://m.media-amazon.com/images/I/61yVBleN8GL._AC_SX466_.jpg',
+            
+            // === STEELSERIES ===
+            'rival 600' => 'https://m.media-amazon.com/images/I/61HXm8D8EcL._AC_SX466_.jpg',
+            'apex pro' => 'https://m.media-amazon.com/images/I/81yFR8MfyML._AC_SX466_.jpg',
+            'arctis 7' => 'https://m.media-amazon.com/images/I/61mOKr6lYbL._AC_SX466_.jpg',
+            
+            // === HYPERX ===
+            'alloy fps pro' => 'https://m.media-amazon.com/images/I/71xg0N4qKlL._AC_SX466_.jpg',
+            'cloud ii' => 'https://m.media-amazon.com/images/I/61CGYwdVF0L._AC_SX466_.jpg',
+            'quadcast' => 'https://m.media-amazon.com/images/I/61c2bCEt-LL._AC_SX466_.jpg',
+            
+            // === ASUS ===
+            'tuf gaming vg27aq' => 'https://m.media-amazon.com/images/I/81tJJhpB7WL._AC_SX466_.jpg',
+            'rog swift' => 'https://m.media-amazon.com/images/I/71UQXPk4qrL._AC_SX466_.jpg',
+            
+            // === MSI ===
+            'optix mag274qrf' => 'https://m.media-amazon.com/images/I/81D8pNFmWzL._AC_SX466_.jpg',
+            'optix' => 'https://m.media-amazon.com/images/I/81D8pNFmWzL._AC_SX466_.jpg',
+        ];
+        
+        // Buscar coincidencia exacta
+        foreach ($specificProducts as $model => $imageUrl) {
+            if (str_contains($name, $model)) {
+                return $imageUrl;
+            }
+        }
+        
+        return null; // No se encontró match específico
     }
 
     // ===== FUNCIONES GENÉRICAS (mantener compatibilidad) =====
