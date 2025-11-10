@@ -76,6 +76,15 @@
       .lista-productos {
         display: none;
       }
+      
+      /* Utilidad para limitar texto a 2 líneas */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     </style>
 </head>
 
@@ -84,68 +93,81 @@
     <div class="layout-container flex h-full grow flex-col">
     <div class="layout-container flex h-full grow flex-col">
       <!-- Header -->
-      <header id="main-header" class="flex items-center justify-between whitespace-nowrap border-b border-solid px-10 py-3 shadow-lg bg-[#0d141c] dark:bg-gray-800 border-[#324d67] dark:border-gray-700">
-        <div class="flex items-center gap-4 text-white dark:text-white">
-          <a href="{{ route('home') }}" class="logo-link text-white dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">
-            CompareWare
-          </a>
+      <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] dark:border-b-gray-700 px-10 py-3 bg-slate-50 dark:bg-gray-800">
+        <div class="flex items-center gap-4 text-[#0d141c] dark:text-white">
+          <div class="size-4">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </div>
+          <a href="{{ route('home') }}" class="logo-link text-[#0d141c] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] hover:underline">CompareWare</a>
         </div>
         <div class="flex flex-1 justify-end gap-8">
-          <a class="nav-link text-white dark:text-gray-300 text-sm font-medium leading-normal hover:underline dark:hover:text-blue-400" href="{{ route('marcas') }}">Marcas</a>
-        </div>
-        <div class="flex gap-2 items-center">
-          <!-- Botón de tema -->
-          <button
-            id="theme-toggle"
-            class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-gray-700 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
-          >
-            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" class="text-amber-500 dark:text-amber-300">
-              <path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path>
-            </svg>
-          </button>
-
-          @auth
-          <span class="text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
-          
-          @if(Auth::user()->is_admin)
-            <a href="{{ route('admin.dashboard') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-              <span>⚡</span>
-              Admin
-            </a>
-          @endif
-          
-          <form action="{{ route('logout') }}" method="POST" class="inline">
-            @csrf
-            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              Cerrar Sesión
+          <div class="flex items-center gap-9">
+            <a class="nav-link text-[#0d141c] dark:text-gray-300 text-sm font-medium leading-normal hover:text-blue-600 dark:hover:text-blue-400" href="{{ route('marcas') }}">Marcas</a>
+            <a class="nav-link text-[#0d141c] dark:text-gray-300 text-sm font-medium leading-normal hover:text-blue-600 dark:hover:text-blue-400" href="{{ route('chatbot') }}">Contacto</a>
+          </div>
+          <div class="flex gap-2">
+            <!-- Botón de tema -->
+            <button
+              id="theme-toggle"
+              class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#e7edf4] dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" class="text-amber-500 dark:text-amber-300">
+                <path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path>
+              </svg>
             </button>
-          </form>
-        @else
-          <a href="{{ route('login') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            Iniciar Sesión
-          </a>
-          <a href="{{ route('register') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            Registrarse
-          </a>
-        @endauth
-        
-        <!-- Selector de Moneda -->
-        <div class="flex items-center gap-2">
-          <span class="text-white text-sm">💱</span>
-          <select id="currency-selector" 
-                  class="rounded-lg h-10 bg-[#e7edf4] text-[#0d141c] text-sm font-bold px-3 border-2 border-transparent hover:border-blue-400 transition-all cursor-pointer">
-            <option value="MXN" selected>🇲🇽 MXN</option>
-            <option value="USD">🇺🇸 USD</option>
-            <option value="EUR">🇪🇺 EUR</option>
-            <option value="GBP">🇬🇧 GBP</option>
-            <option value="CAD">🇨🇦 CAD</option>
-            <option value="JPY">🇯🇵 JPY</option>
-            <option value="CNY">🇨🇳 CNY</option>
-            <option value="BRL">🇧🇷 BRL</option>
-            <option value="ARS">🇦🇷 ARS</option>
-            <option value="COP">🇨🇴 COP</option>
-          </select>
-        </div>
+
+            @auth
+              <!-- Usuario autenticado -->
+              <span class="text-[#0d141c] dark:text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
+              <form method="POST" action="{{ route('logout') }}" class="inline">
+                @csrf
+                <button
+                  type="submit"
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-red-600 text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-red-700 transition-colors"
+                >
+                  Cerrar sesión
+                </button>
+              </form>
+            @else
+              <!-- Usuario no autenticado -->
+              <a
+                href="{{ route('login') }}"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#0d80f2] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-blue-600 transition-colors"
+              >
+                Iniciar sesión
+              </a>
+              <a
+                href="{{ route('register') }}"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7edf4] dark:bg-gray-700 text-[#0d141c] dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Registrarse
+              </a>
+            @endauth
+
+            @auth
+              @if(Auth::user()->isAdmin())
+                <div class="flex gap-2">
+                  <a
+                    href="{{ route('admin.access') }}"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-purple-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-purple-700 transition-colors"
+                  >
+                    <span class="truncate">🎯 Área Admin</span>
+                  </a>
+                  <a
+                    href="{{ route('panel.admin') }}"
+                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-indigo-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-indigo-700 transition-colors"
+                  >
+                    <span class="truncate">🚀 Directo</span>
+                  </a>
+                </div>
+              @endif
+            @endauth
+          </div>
         </div>
       </header>
 
@@ -186,14 +208,80 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   @foreach($productos as $producto)
                     @if($producto->categoria_id == $categoria->id)
-                      <div class="card rounded-lg p-4 font-semibold bg-[#1e293b] dark:bg-gray-800 border border-[#324d67] dark:border-gray-700">
-                        <div class="flex items-center gap-3 mb-2">
-                          <div class="bg-blue-500 dark:bg-blue-600 p-2 rounded-lg">
-                            <span class="text-white">{{ $producto->nombre }}</span>
+                      <div class="card rounded-lg overflow-hidden font-semibold bg-[#1e293b] dark:bg-gray-800 border border-[#324d67] dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300">
+                        
+                        <!-- Imagen del producto -->
+                        <div class="relative h-48 bg-white dark:bg-gray-700 flex items-center justify-center p-4">
+                          <img 
+                            src="{{ $producto->imagen_url_completa }}?v={{ time() }}" 
+                            alt="{{ $producto->imagen_alt ?? $producto->nombre }}"
+                            class="w-full h-full object-contain"
+                            onerror="this.src='https://via.placeholder.com/300x300?text={{ urlencode($producto->nombre) }}'; console.error('Error cargando:', this.src);"
+                          >
+                          <!-- Badge de origen de imagen -->
+                          @if($producto->imagen_source)
+                            <div class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
+                              @if($producto->imagen_source === 'amazon')
+                                🛒 Amazon
+                              @elseif($producto->imagen_source === 'local')
+                                📁 Local
+                              @else
+                                ✏️ Manual
+                              @endif
+                            </div>
+                          @endif
+                        </div>
+
+                        <!-- Información del producto -->
+                        <div class="p-4">
+                          <div class="mb-3">
+                            <h4 class="text-white dark:text-gray-100 font-bold text-base line-clamp-2 mb-1">
+                              {{ $producto->nombre }}
+                            </h4>
+                            @if($producto->modelo)
+                              <p class="text-gray-400 dark:text-gray-500 text-xs">
+                                Modelo: {{ $producto->modelo }}
+                              </p>
+                            @endif
+                          </div>
+                          
+                          <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                              <span class="text-gray-400 dark:text-gray-500 text-sm">Precio:</span>
+                              <span class="text-green-400 dark:text-green-500 font-bold text-lg">
+                                ${{ number_format($producto->precio, 2) }}
+                              </span>
+                            </div>
+                            
+                            @if($producto->tipo_conectividad)
+                              <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 dark:text-gray-500">🔗</span>
+                                <span class="text-gray-300 dark:text-gray-400">{{ $producto->tipo_conectividad }}</span>
+                              </div>
+                            @endif
+
+                            @if($producto->marca)
+                              <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 dark:text-gray-500">🏷️</span>
+                                <span class="text-blue-400 dark:text-blue-500">{{ $producto->marca->nombre }}</span>
+                              </div>
+                            @endif
+                            
+                            @if($producto->amazon_url)
+                              <div class="mt-3">
+                                <a href="{{ $producto->amazon_url }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="inline-flex items-center gap-2 w-full justify-center px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg transition-colors duration-200">
+                                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.12.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726-1.53.406-3.045.61-4.516.61-2.265 0-4.473-.38-6.624-1.135-2.16-.755-4.043-1.8-5.648-3.144-.136-.117-.18-.235-.126-.35zm23.696-1.77c-.29-.326-.73-.326-1.31 0-.58.325-1.28.742-2.1 1.248-.824.506-1.47.868-1.934 1.08-.465.212-.87.318-1.21.318-.78 0-1.67-.24-2.67-.72-1-.48-1.84-1.02-2.52-1.63-.68-.61-1.17-1.16-1.47-1.65-.3-.49-.45-.89-.45-1.2 0-.455.135-.855.405-1.2.27-.345.675-.57 1.215-.675.54-.105 1.17-.105 1.89 0 .72.105 1.47.315 2.25.63.78.315 1.485.735 2.115 1.26.63.525 1.11 1.125 1.44 1.8.33.675.495 1.425.495 2.25 0 .705-.135 1.365-.405 1.98-.27.615-.645 1.155-1.125 1.62s-1.035.84-1.665 1.125c-.63.285-1.305.465-2.025.54-.72.075-1.44.075-2.16 0-.72-.075-1.41-.24-2.07-.495-.66-.255-1.245-.6-1.755-1.035-.51-.435-.915-.96-1.215-1.575-.3-.615-.45-1.32-.45-2.115 0-1.02.225-1.935.675-2.745.45-.81 1.065-1.485 1.845-2.025.78-.54 1.665-.945 2.655-1.215.99-.27 2.01-.405 3.06-.405 1.5 0 2.88.255 4.14.765 1.26.51 2.31 1.2 3.15 2.07.84.87 1.47 1.875 1.89 3.015.42 1.14.63 2.34.63 3.6 0 1.29-.21 2.49-.63 3.6-.42 1.11-1.02 2.07-1.8 2.88-.78.81-1.71 1.44-2.79 1.89-1.08.45-2.25.675-3.51.675-1.44 0-2.79-.27-4.05-.81-1.26-.54-2.34-1.29-3.24-2.25-.9-.96-1.59-2.1-2.07-3.42-.48-1.32-.72-2.76-.72-4.32 0-1.65.255-3.165.765-4.545.51-1.38 1.23-2.565 2.16-3.555.93-.99 2.04-1.755 3.33-2.295 1.29-.54 2.7-.81 4.23-.81 1.65 0 3.165.3 4.545.9 1.38.6 2.565 1.425 3.555 2.475.99 1.05 1.755 2.28 2.295 3.69.54 1.41.81 2.925.81 4.545 0 .84-.075 1.65-.225 2.43-.15.78-.39 1.515-.72 2.205-.33.69-.75 1.32-1.26 1.89-.51.57-1.11 1.035-1.8 1.395-.69.36-1.455.54-2.295.54-.99 0-1.86-.225-2.61-.675-.75-.45-1.32-1.065-1.71-1.845-.39-.78-.585-1.68-.585-2.7z"/>
+                                  </svg>
+                                  Ver en Amazon
+                                </a>
+                              </div>
+                            @endif
                           </div>
                         </div>
-                        <p class="text-white dark:text-gray-200 text-sm">Precio: ${{ $producto->precio }}</p>
-                        <p class="text-gray-300 dark:text-gray-400 text-xs">{{ $producto->tipo_conectividad }}</p>
                       </div>
                     @endif
                   @endforeach
@@ -241,10 +329,25 @@
     </div>
 
     <script>
+      // ========== DEBUG INICIAL ==========
+      console.log('✅ Script iniciado');
+      console.log('📦 Total productos:', @json(count($productos)));
+      
       // Variables globales con debugging
       const productos = @json($productos);
       const categorias = @json($categorias);
       let isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+      
+      console.log('✅ Productos cargados:', productos.length);
+      
+      // Debug: Verificar URLs de imágenes
+      console.log('🔍 Debug de imágenes:');
+      productos.forEach((p, index) => {
+        console.log(`${index + 1}. ${p.nombre}:`);
+        console.log(`   - imagen_url_completa: ${p.imagen_url_completa || 'NO EXISTE'}`);
+        console.log(`   - imagen_path: ${p.imagen_path || 'NO EXISTE'}`);
+        console.log(`   - imagen_source: ${p.imagen_source || 'NO EXISTE'}`);
+      });
       
       // Variables globales
       let categoriaSeleccionada = null;
@@ -575,6 +678,8 @@
                 console.log('✅ Especificaciones obtenidas exitosamente:');
                 console.log('- Especificaciones Producto 1:', specs1Data);
                 console.log('- Especificaciones Producto 2:', specs2Data);
+                console.log('🔍 Estructura de specs del Producto 1:', JSON.stringify(specs1Data.result?.specifications, null, 2));
+                console.log('🔍 Estructura de specs del Producto 2:', JSON.stringify(specs2Data.result?.specifications, null, 2));
                 
                 specsData = {
                   success: true,
@@ -766,6 +871,9 @@
       
       function crearTarjetaProducto(producto, color, amazonInfo = null, specsInfo = null, priceHistoryInfo = null) {
         console.log(`🏗️ Creando tarjeta para: ${producto.nombre}`);
+        console.log(`🖼️ imagen_url_completa:`, producto.imagen_url_completa);
+        console.log(`🖼️ imagen_path:`, producto.imagen_path);
+        console.log(`🖼️ imagen_source:`, producto.imagen_source);
         console.log(`🏗️ Amazon Info:`, amazonInfo);
         console.log(`🏗️ Specs Info:`, specsInfo);
         const card = document.createElement('div');
@@ -795,6 +903,48 @@
         }
         
         card.appendChild(header);
+        
+        // Imagen del producto (si existe)
+        console.log(`🔍 Verificando imagen: imagen_url_completa=${producto.imagen_url_completa ? 'EXISTS' : 'NULL'}, amazonPhoto=${amazonInfo && amazonInfo.length > 0 && amazonInfo[0].product_photo ? 'EXISTS' : 'NULL'}`);
+        if (producto.imagen_url_completa || (amazonInfo && amazonInfo.length > 0 && amazonInfo[0].product_photo)) {
+          const imageContainer = document.createElement('div');
+          imageContainer.className = 'mb-4 rounded-lg overflow-hidden bg-white dark:bg-gray-800 p-4';
+          
+          const img = document.createElement('img');
+          img.className = 'w-full h-64 object-contain mx-auto';
+          
+          // Prioridad: imagen_url_completa del producto, luego imagen de Amazon
+          if (producto.imagen_url_completa) {
+            img.src = producto.imagen_url_completa;
+            img.alt = producto.imagen_alt || producto.nombre;
+            console.log('🖼️ Cargando imagen propia:', producto.imagen_url_completa);
+          } else if (amazonInfo && amazonInfo.length > 0 && amazonInfo[0].product_photo) {
+            img.src = amazonInfo[0].product_photo;
+            img.alt = amazonInfo[0].product_title || producto.nombre;
+            console.log('🖼️ Cargando imagen de Amazon:', amazonInfo[0].product_photo);
+          }
+          
+          // Badge de origen de imagen
+          const sourceBadge = document.createElement('div');
+          sourceBadge.className = 'text-xs text-center mt-2 text-gray-400 dark:text-gray-500';
+          if (producto.imagen_source === 'amazon') {
+            sourceBadge.innerHTML = '🛒 <span class="text-orange-400">Imagen de Amazon</span>';
+          } else if (producto.imagen_source === 'local') {
+            sourceBadge.innerHTML = '📁 <span class="text-blue-400">Imagen local</span>';
+          } else if (amazonInfo && amazonInfo.length > 0) {
+            sourceBadge.innerHTML = '🛒 <span class="text-orange-400">Imagen de Amazon (API)</span>';
+          }
+          
+          // Manejo de errores de carga
+          img.onerror = function() {
+            console.warn('⚠️ Error cargando imagen, usando placeholder');
+            img.src = 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(producto.nombre);
+          };
+          
+          imageContainer.appendChild(img);
+          imageContainer.appendChild(sourceBadge);
+          card.appendChild(imageContainer);
+        }
         
         // Información del producto
         const info = document.createElement('div');
@@ -1279,6 +1429,31 @@
         shoppingSection.appendChild(shoppingContent);
         card.appendChild(shoppingSection);
         
+        // ========================================
+        // BOTÓN DE COMPRA EN AMAZON (desde BD)
+        // ========================================
+        if (producto.amazon_url) {
+          console.log('🛒 Agregando botón de Amazon desde BD para:', producto.nombre);
+          
+          const amazonButtonSection = document.createElement('div');
+          amazonButtonSection.className = 'border-t border-orange-500/30 pt-4 mt-4';
+          
+          const amazonButton = document.createElement('a');
+          amazonButton.href = producto.amazon_url;
+          amazonButton.target = '_blank';
+          amazonButton.rel = 'noopener noreferrer';
+          amazonButton.className = 'flex items-center justify-center gap-3 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-center py-4 px-6 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl';
+          amazonButton.innerHTML = `
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.12.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726-1.53.406-3.045.61-4.516.61-2.265 0-4.473-.38-6.624-1.135-2.16-.755-4.043-1.8-5.648-3.144-.136-.117-.18-.235-.126-.35zm23.696-1.77c-.29-.326-.73-.326-1.31 0-.58.325-1.28.742-2.1 1.248-.824.506-1.47.868-1.934 1.08-.465.212-.87.318-1.21.318-.78 0-1.67-.24-2.67-.72-1-.48-1.84-1.02-2.52-1.63-.68-.61-1.17-1.16-1.47-1.65-.3-.49-.45-.89-.45-1.2 0-.455.135-.855.405-1.2.27-.345.675-.57 1.215-.675.54-.105 1.17-.105 1.89 0 .72.105 1.47.315 2.25.63.78.315 1.485.735 2.115 1.26.63.525 1.11 1.125 1.44 1.8.33.675.495 1.425.495 2.25 0 .705-.135 1.365-.405 1.98-.27.615-.645 1.155-1.125 1.62s-1.035.84-1.665 1.125c-.63.285-1.305.465-2.025.54-.72.075-1.44.075-2.16 0-.72-.075-1.41-.24-2.07-.495-.66-.255-1.245-.6-1.755-1.035-.51-.435-.915-.96-1.215-1.575-.3-.615-.45-1.32-.45-2.115 0-1.02.225-1.935.675-2.745.45-.81 1.065-1.485 1.845-2.025.78-.54 1.665-.945 2.655-1.215.99-.27 2.01-.405 3.06-.405 1.5 0 2.88.255 4.14.765 1.26.51 2.31 1.2 3.15 2.07.84.87 1.47 1.875 1.89 3.015.42 1.14.63 2.34.63 3.6 0 1.29-.21 2.49-.63 3.6-.42 1.11-1.02 2.07-1.8 2.88-.78.81-1.71 1.44-2.79 1.89-1.08.45-2.25.675-3.51.675-1.44 0-2.79-.27-4.05-.81-1.26-.54-2.34-1.29-3.24-2.25-.9-.96-1.59-2.1-2.07-3.42-.48-1.32-.72-2.76-.72-4.32 0-1.65.255-3.165.765-4.545.51-1.38 1.23-2.565 2.16-3.555.93-.99 2.04-1.755 3.33-2.295 1.29-.54 2.7-.81 4.23-.81 1.65 0 3.165.3 4.545.9 1.38.6 2.565 1.425 3.555 2.475.99 1.05 1.755 2.28 2.295 3.69.54 1.41.81 2.925.81 4.545 0 .84-.075 1.65-.225 2.43-.15.78-.39 1.515-.72 2.205-.33.69-.75 1.32-1.26 1.89-.51.57-1.11 1.035-1.8 1.395-.69.36-1.455.54-2.295.54-.99 0-1.86-.225-2.61-.675-.75-.45-1.32-1.065-1.71-1.845-.39-.78-.585-1.68-.585-2.7z"/>
+            </svg>
+            <span>🛒 Comprar en Amazon</span>
+          `;
+          
+          amazonButtonSection.appendChild(amazonButton);
+          card.appendChild(amazonButtonSection);
+        }
+        
         return card;
       }
       
@@ -1590,55 +1765,106 @@
         `;
         table.appendChild(header);
         
-        // Extraer especificaciones comparables
-        const allSpecs = new Set();
+        // Normalizar especificaciones (puede venir como array o como objeto)
+        const normalizeSpecs = (specsData) => {
+          if (!specsData) return null;
+          
+          // Buscar en specifications o specs
+          let specs = specsData.specifications || specsData.specs;
+          if (!specs) return null;
+          
+          // Si specs es un array, tomar el primer elemento
+          if (Array.isArray(specs)) {
+            console.log('📦 Specs es un array, extrayendo primer elemento');
+            return specs[0] || specs;
+          }
+          
+          // Si ya es un objeto, retornarlo directamente
+          return specs;
+        };
         
-        // Recopilar todas las claves de especificaciones
-        if (specs1.specs) {
-          Object.keys(specs1.specs).forEach(category => {
-            if (specs1.specs[category] && typeof specs1.specs[category] === 'object') {
-              Object.keys(specs1.specs[category]).forEach(spec => {
-                allSpecs.add(`${category}.${spec}`);
+        const normalizedSpecs1 = normalizeSpecs(specs1);
+        const normalizedSpecs2 = normalizeSpecs(specs2);
+        
+        console.log('✨ Specs normalizadas:');
+        console.log('- Producto 1:', normalizedSpecs1);
+        console.log('- Producto 2:', normalizedSpecs2);
+        console.log('📊 Tipos:', typeof normalizedSpecs1, typeof normalizedSpecs2);
+        
+        // Extraer especificaciones comparables agrupadas por categoría
+        const categoriesMap = {};
+        
+        // Recopilar especificaciones del producto 1
+        if (normalizedSpecs1) {
+          console.log('🔑 Categorías del Producto 1:', Object.keys(normalizedSpecs1));
+          Object.keys(normalizedSpecs1).forEach(category => {
+            console.log(`📂 Procesando categoría "${category}":`, normalizedSpecs1[category]);
+            if (normalizedSpecs1[category] && typeof normalizedSpecs1[category] === 'object') {
+              if (!categoriesMap[category]) {
+                categoriesMap[category] = {};
+              }
+              Object.keys(normalizedSpecs1[category]).forEach(spec => {
+                if (!categoriesMap[category][spec]) {
+                  categoriesMap[category][spec] = { val1: null, val2: null };
+                }
+                categoriesMap[category][spec].val1 = normalizedSpecs1[category][spec];
               });
             }
           });
         }
         
-        if (specs2.specs) {
-          Object.keys(specs2.specs).forEach(category => {
-            if (specs2.specs[category] && typeof specs2.specs[category] === 'object') {
-              Object.keys(specs2.specs[category]).forEach(spec => {
-                allSpecs.add(`${category}.${spec}`);
+        // Recopilar especificaciones del producto 2
+        if (normalizedSpecs2) {
+          Object.keys(normalizedSpecs2).forEach(category => {
+            if (normalizedSpecs2[category] && typeof normalizedSpecs2[category] === 'object') {
+              if (!categoriesMap[category]) {
+                categoriesMap[category] = {};
+              }
+              Object.keys(normalizedSpecs2[category]).forEach(spec => {
+                if (!categoriesMap[category][spec]) {
+                  categoriesMap[category][spec] = { val1: null, val2: null };
+                }
+                categoriesMap[category][spec].val2 = normalizedSpecs2[category][spec];
               });
             }
           });
         }
         
-        // Crear filas para cada especificación
-        Array.from(allSpecs).slice(0, 10).forEach(specKey => { // Limitar a 10 para no sobrecargar
-          const [category, spec] = specKey.split('.');
-          const value1 = specs1.specs?.[category]?.[spec] || 'N/A';
-          const value2 = specs2.specs?.[category]?.[spec] || 'N/A';
+        // Crear filas para cada categoría y especificación
+        console.log('🗺️ CategoriesMap final:', categoriesMap);
+        console.log('📋 Número de categorías:', Object.keys(categoriesMap).length);
+        
+        Object.keys(categoriesMap).forEach(category => {
+          // Header de categoría
+          const categoryHeader = document.createElement('div');
+          categoryHeader.className = 'bg-green-800/30 p-3 text-sm font-bold text-green-300 border-b-2 border-green-500/50';
+          categoryHeader.innerHTML = `${getCategoryIcon(category)} ${getCategoryName(category)}`;
+          table.appendChild(categoryHeader);
           
-          const row = document.createElement('div');
-          row.className = 'grid grid-cols-3 p-3 border-b border-gray-600/30 text-xs hover:bg-gray-700/20';
-          
-          const specName = document.createElement('div');
-          specName.className = 'text-gray-300 font-medium capitalize';
-          specName.textContent = spec.replace(/_/g, ' ');
-          
-          const val1 = document.createElement('div');
-          val1.className = 'text-center text-blue-200';
-          val1.textContent = typeof value1 === 'string' ? value1.substring(0, 30) + (value1.length > 30 ? '...' : '') : value1;
-          
-          const val2 = document.createElement('div');
-          val2.className = 'text-center text-purple-200';
-          val2.textContent = typeof value2 === 'string' ? value2.substring(0, 30) + (value2.length > 30 ? '...' : '') : value2;
-          
-          row.appendChild(specName);
-          row.appendChild(val1);
-          row.appendChild(val2);
-          table.appendChild(row);
+          // Especificaciones de la categoría
+          Object.keys(categoriesMap[category]).forEach(spec => {
+            const { val1, val2 } = categoriesMap[category][spec];
+            
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-3 p-3 border-b border-gray-600/30 text-xs hover:bg-gray-700/20';
+            
+            const specName = document.createElement('div');
+            specName.className = 'text-gray-300 font-medium capitalize pl-4';
+            specName.textContent = spec.replace(/_/g, ' ');
+            
+            const val1Div = document.createElement('div');
+            val1Div.className = 'text-center text-blue-200';
+            val1Div.textContent = val1 !== null && val1 !== undefined ? (typeof val1 === 'string' ? val1 : String(val1)) : 'N/A';
+            
+            const val2Div = document.createElement('div');
+            val2Div.className = 'text-center text-purple-200';
+            val2Div.textContent = val2 !== null && val2 !== undefined ? (typeof val2 === 'string' ? val2 : String(val2)) : 'N/A';
+            
+            row.appendChild(specName);
+            row.appendChild(val1Div);
+            row.appendChild(val2Div);
+            table.appendChild(row);
+          });
         });
         
         container.appendChild(table);

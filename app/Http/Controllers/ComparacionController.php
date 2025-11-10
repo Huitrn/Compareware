@@ -32,28 +32,20 @@ class ComparacionController extends Controller
             'user_agent' => $request->userAgent()
         ]);
 
-        // Buscar los periféricos con información completa
-        $periferico1 = DB::table('perifericos as p')
-            ->leftJoin('marcas as m', 'p.marca_id', '=', 'm.id')
-            ->leftJoin('categorias as c', 'p.categoria_id', '=', 'c.id')
-            ->select(
-                'p.id', 'p.nombre', 'p.modelo', 'p.precio', 'p.tipo_conectividad',
-                'm.nombre as marca_nombre',
-                'c.nombre as categoria_nombre'
-            )
-            ->where('p.id', $id1)
-            ->first();
+        // Buscar los periféricos con Eloquent para obtener accessors
+        $periferico1 = Periferico::with(['marca', 'categoria'])
+            ->find($id1);
             
-        $periferico2 = DB::table('perifericos as p')
-            ->leftJoin('marcas as m', 'p.marca_id', '=', 'm.id')
-            ->leftJoin('categorias as c', 'p.categoria_id', '=', 'c.id')
-            ->select(
-                'p.id', 'p.nombre', 'p.modelo', 'p.precio', 'p.tipo_conectividad',
-                'm.nombre as marca_nombre',
-                'c.nombre as categoria_nombre'
-            )
-            ->where('p.id', $id2)
-            ->first();
+        $periferico2 = Periferico::with(['marca', 'categoria'])
+            ->find($id2);
+        
+        // Forzar que se incluyan los accessors
+        if ($periferico1) {
+            $periferico1->append('imagen_url_completa', 'thumbnail_url_completa');
+        }
+        if ($periferico2) {
+            $periferico2->append('imagen_url_completa', 'thumbnail_url_completa');
+        }
 
         if (!$periferico1 || !$periferico2) {
             return response()->json(['success' => false, 'message' => 'Periféricos no encontrados']);
@@ -81,6 +73,100 @@ class ComparacionController extends Controller
             'producto_2' => $id2,
             'tipo_comparacion' => 'directa',
             'url_comparacion' => "/comparar/{$id1}/{$id2}"
+        ]);
+    }
+    
+    /**
+     * Obtener comparación con imágenes incluidas
+     * Endpoint: GET /api/comparacion/{id}/with-images
+     */
+    public function getComparisonWithImages($id)
+    {
+        $comparacion = Comparacion::with(['periferico1', 'periferico2'])->find($id);
+        
+        if (!$comparacion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comparación no encontrada'
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'comparacion' => [
+                'id' => $comparacion->id,
+                'descripcion' => $comparacion->descripcion,
+                'ganador' => $comparacion->ganador
+            ],
+            'productos' => [
+                [
+                    'id' => $comparacion->periferico1->id,
+                    'nombre' => $comparacion->periferico1->nombre,
+                    'precio' => $comparacion->periferico1->precio,
+                    'imagen_data' => $comparacion->periferico1->imagen_data
+                ],
+                [
+                    'id' => $comparacion->periferico2->id,
+                    'nombre' => $comparacion->periferico2->nombre,
+                    'precio' => $comparacion->periferico2->precio,
+                    'imagen_data' => $comparacion->periferico2->imagen_data
+                ]
+            ]
+        ]);
+    }
+    
+    /**
+     * Comparar dos productos con sus imágenes
+     * Endpoint: GET /api/comparacion/compare-products?periferico1=X&periferico2=Y
+     */
+    public function compareProductsWithImages(Request $request)
+    {
+        $id1 = $request->input('periferico1');
+        $id2 = $request->input('periferico2');
+        
+        if (!$id1 || !$id2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Debe proporcionar ambos IDs de periféricos'
+            ], 400);
+        }
+        
+        $periferico1 = Periferico::with(['marca', 'categoria'])->find($id1);
+        $periferico2 = Periferico::with(['marca', 'categoria'])->find($id2);
+        
+        if (!$periferico1 || !$periferico2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Uno o ambos periféricos no encontrados'
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'periferico1' => [
+                'id' => $periferico1->id,
+                'nombre' => $periferico1->nombre,
+                'modelo' => $periferico1->modelo,
+                'precio' => $periferico1->precio,
+                'marca' => $periferico1->marca?->nombre,
+                'categoria' => $periferico1->categoria?->nombre,
+                'tipo_conectividad' => $periferico1->tipo_conectividad,
+                'imagen_data' => $periferico1->imagen_data,
+                'tiene_imagen' => $periferico1->hasImage(),
+                'tiene_galeria' => $periferico1->hasGallery()
+            ],
+            'periferico2' => [
+                'id' => $periferico2->id,
+                'nombre' => $periferico2->nombre,
+                'modelo' => $periferico2->modelo,
+                'precio' => $periferico2->precio,
+                'marca' => $periferico2->marca?->nombre,
+                'categoria' => $periferico2->categoria?->nombre,
+                'tipo_conectividad' => $periferico2->tipo_conectividad,
+                'imagen_data' => $periferico2->imagen_data,
+                'tiene_imagen' => $periferico2->hasImage(),
+                'tiene_galeria' => $periferico2->hasGallery()
+            ]
         ]);
     }
 }

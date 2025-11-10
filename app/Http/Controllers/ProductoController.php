@@ -10,7 +10,13 @@ class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-        $productos = Periferico::all();
+        $productos = Periferico::with(['marca', 'categoria'])
+            ->get()
+            ->each(function($producto) {
+                // Forzar que se agregue imagen_url_completa al JSON
+                $producto->append('imagen_url_completa');
+            });
+            
         $categorias = Categoria::all();
 
         // Elimina las llamadas a APIs externas
