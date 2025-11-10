@@ -1,31 +1,41 @@
 // 🎨 Tema Switcher para CompareWare
 // Usa el sistema de dark mode de Tailwind CSS con clase 'dark' en <html>
 
-function setTheme(theme) {
-  // Guardar preferencia en localStorage
-  localStorage.setItem('theme', theme);
-  
-  // Aplicar o remover clase 'dark' en el elemento HTML
-  const htmlElement = document.documentElement;
-  
-  if (theme === 'dark') {
-    htmlElement.classList.add('dark');
-  } else {
-    htmlElement.classList.remove('dark');
-  }
-  
-  // Actualizar ícono del botón de tema
-  updateThemeIcon(theme);
-  
-  console.log(`✅ Tema cambiado a: ${theme}`);
-}
+(function() {
+  'use strict';
 
-function updateThemeIcon(theme) {
-  // Actualizar ícono dentro del botón de tema
-  const themeIcon = document.getElementById('theme-icon');
-  if (themeIcon) {
+  // Aplicar tema inmediatamente para evitar flash
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+  }
+
+  function setTheme(theme) {
+    // Guardar preferencia en localStorage
+    localStorage.setItem('theme', theme);
+    
+    // Aplicar o remover clase 'dark' en el elemento HTML
+    const htmlElement = document.documentElement;
+    
+    if (theme === 'dark') {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+    
+    // Actualizar ícono del botón de tema
+    updateThemeIcon(theme);
+    
+    console.log(`✅ Tema cambiado a: ${theme}`);
+  }
+
+  function updateThemeIcon(theme) {
+    // Actualizar ícono dentro del botón de tema
+    const themeIcon = document.getElementById('theme-icon');
+    if (!themeIcon) return;
+    
     // Mantener las clases de color que ya tiene
-    themeIcon.className = 'text-amber-500 dark:text-amber-300';
+    const svgNS = 'http://www.w3.org/2000/svg';
     
     if (theme === 'dark') {
       // Icono de luna para modo oscuro
@@ -35,23 +45,37 @@ function updateThemeIcon(theme) {
       themeIcon.innerHTML = `<path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"></path>`;
     }
   }
-}
 
-function initThemeSwitcher() {
-  // Cargar tema guardado o usar claro por defecto
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  setTheme(savedTheme);
+  function initThemeSwitcher() {
+    console.log('🎨 Inicializando theme switcher...');
+    
+    // Cargar tema guardado
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    console.log('📦 Tema guardado:', currentTheme);
+    
+    // Aplicar tema y actualizar ícono
+    setTheme(currentTheme);
 
-  // Agregar event listener al botón de cambio de tema
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
-      const currentTheme = localStorage.getItem('theme') || 'light';
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-    });
+    // Agregar event listener al botón de cambio de tema
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      console.log('✅ Botón de tema encontrado');
+      themeToggle.addEventListener('click', function() {
+        const current = localStorage.getItem('theme') || 'light';
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        console.log('🔄 Cambiando tema de', current, 'a', newTheme);
+        setTheme(newTheme);
+      });
+    } else {
+      console.error('❌ No se encontró el botón #theme-toggle');
+    }
   }
-}
 
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', initThemeSwitcher);
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeSwitcher);
+  } else {
+    // DOM ya está listo
+    initThemeSwitcher();
+  }
+})();

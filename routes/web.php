@@ -11,6 +11,12 @@ use App\Http\Controllers\EnvironmentTestController;
 use App\Http\Controllers\YouTubeController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\GoogleShoppingController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ImageController;
+
+// Rutas de imágenes
+Route::get('/images/periferico/{id}', [ImageController::class, 'show'])->name('images.show');
+Route::post('/images/periferico/{id}/upload', [ImageController::class, 'upload'])->name('images.upload');
 
 // Rutas de vistas
 
@@ -27,16 +33,14 @@ Route::get('/comparadora', function () {
         // Registrar intento de carga
         \Log::info('Intentando cargar datos para comparadora...');
         
-        // Usar DB directo para evitar problemas con modelos
-        $categorias = DB::table('categorias')->orderBy('nombre')->get();
-        $productos = DB::table('perifericos')->orderBy('nombre')->get();
+        // Usar Eloquent para cargar relaciones
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+        $productos = \App\Models\Periferico::with(['marca', 'categoria'])
+            ->orderBy('nombre')
+            ->get();
         
         // Log para debug
         \Log::info('Datos cargados - Categorías: ' . $categorias->count() . ', Productos: ' . $productos->count());
-        
-        // Convertir a Collections si no lo son
-        $categorias = collect($categorias);
-        $productos = collect($productos);
         
         // Debug adicional
         if ($productos->isEmpty()) {
@@ -61,9 +65,9 @@ Route::get('/comparadora', function () {
         ]);
         
         $productos = collect([
-            (object)['id' => 1, 'nombre' => 'Haylou S35 ANC', 'categoria_id' => 1, 'precio' => '800.00'],
-            (object)['id' => 2, 'nombre' => 'Skullcandy Crusher ANC 2 Inalámbricos', 'categoria_id' => 1, 'precio' => '4000.00'],
-            (object)['id' => 3, 'nombre' => 'Producto de Prueba', 'categoria_id' => 2, 'precio' => '1500.00']
+            (object)['id' => 1, 'nombre' => 'Haylou S35 ANC', 'categoria_id' => 1, 'precio' => '800.00', 'imagen_url' => null, 'marca' => null],
+            (object)['id' => 2, 'nombre' => 'Skullcandy Crusher ANC 2 Inalámbricos', 'categoria_id' => 1, 'precio' => '4000.00', 'imagen_url' => null, 'marca' => null],
+            (object)['id' => 3, 'nombre' => 'Producto de Prueba', 'categoria_id' => 2, 'precio' => '1500.00', 'imagen_url' => null, 'marca' => null]
         ]);
         
         \Log::info('Usando datos de fallback');
@@ -95,11 +99,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/perfil', function () {
     return view('perfil');
-})->name('perfil');
+})->name('perfil')->middleware('auth');
 
 Route::get('/editar', function () {
     return view('editar');
-})->name('editar');
+})->name('editar')->middleware('auth');
 Route::get('/marcas', function () {
     return view('marcas');
 })->name('marcas');
@@ -124,9 +128,9 @@ Route::get('/debug-user', function(){
         'user_id' => $user->id,
         'user_name' => $user->name,
         'user_email' => $user->email,
-        'user_role' => $user->role,
-        'is_admin' => $user->role === 'admin',
-        'can_access_admin' => $user->role === 'admin' ? 'YES' : 'NO',
+        'user_role' => $user->getRoleName(),
+        'is_admin' => $user->isAdmin(),
+        'can_access_admin' => $user->isAdmin() ? 'YES' : 'NO',
         'logout_url' => route('logout'),
         'home_url' => route('home')
     ];
@@ -145,7 +149,7 @@ Route::get('/panel-admin', function(){
         return redirect()->route('login')->with('error', 'Debes iniciar sesión para acceder.');
     }
     
-    if (Auth::user()->role !== 'admin') {
+    if (!Auth::user()->isAdmin()) {
         abort(403, 'No tienes permisos de administrador.');
     }
     
@@ -160,7 +164,7 @@ Route::get('/admin-access', function() {
 
 // 🧪 RUTA DE PRUEBA SIMPLE PARA ADMIN
 Route::get('/admin-test', function() {
-    if (!Auth::check() || Auth::user()->role !== 'admin') {
+    if (!Auth::check() || !Auth::user()->isAdmin()) {
         return 'No tienes permisos de admin';
     }
     
@@ -172,7 +176,7 @@ Route::get('/admin-test', function() {
 // 👨‍💼 RUTAS DE ADMINISTRACIÓN (SIMPLIFICADAS)
 Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/dashboard', function() {
-        if (Auth::user()->role !== 'admin') {
+        if (!Auth::user()->isAdmin()) {
             abort(403, 'Acceso denegado');
         }
         // Redireccionar directamente a gestión de usuarios
@@ -340,7 +344,7 @@ Route::get('/test-real-amazon-urls', function () {
 });
 
 // NEW: Buscar productos Amazon específicos basados en periféricos de la BDD
-Route::get('/amazon-for-product/{productId}', function ($productId) {
+Route::get('/amazon/{productId}', function ($productId) {
     try {
         // Obtener producto específico de la base de datos
         $periferico = DB::table('perifericos as p')
@@ -669,3 +673,11 @@ Route::get('/test/currency', [CurrencyController::class, 'testView'])->name('tes
 // RUTAS DE PRUEBA PARA GOOGLE SHOPPING API
 // ============================================
 Route::get('/test/google-shopping', [GoogleShoppingController::class, 'testView'])->name('test.google-shopping');
+
+// Chatbot OpenAI (RapidAPI)
+Route::post('/chatbot/message', [ChatbotController::class, 'chat'])->name('chatbot.message');
+
+// Ruta para el chatbot
+Route::get('/chatbot', function () {
+    return view('chatbot');
+})->name('chatbot');
