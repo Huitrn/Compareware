@@ -15,10 +15,14 @@ return new class extends Migration
         Schema::table('environment_logs', function (Blueprint $table) {
             // Modificar created_at para tener valor por defecto
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->change();
-            
-            // Agregar updated_at como nullable para compatibilidad con Laravel
-            $table->timestamp('updated_at')->nullable()->after('created_at');
         });
+        
+        // Agregar updated_at solo si no existe
+        if (!Schema::hasColumn('environment_logs', 'updated_at')) {
+            Schema::table('environment_logs', function (Blueprint $table) {
+                $table->timestamp('updated_at')->nullable()->after('created_at');
+            });
+        }
     }
 
     /**
