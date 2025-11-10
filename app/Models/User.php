@@ -38,6 +38,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'role_id',  // Agregar para sistema de roles con foreign key
         'is_suspended'
     ];
 
@@ -186,7 +187,23 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->userRole && $this->userRole->slug === 'administrador';
+    }
+
+    /**
+     * Verificar si el usuario es supervisor
+     */
+    public function isSupervisor(): bool
+    {
+        return $this->userRole && $this->userRole->slug === 'supervisor';
+    }
+
+    /**
+     * Verificar si el usuario es desarrollador
+     */
+    public function isDeveloper(): bool
+    {
+        return $this->userRole && $this->userRole->slug === 'desarrollador';
     }
 
     /**
@@ -258,5 +275,57 @@ class User extends Authenticatable
     public function isLocked(): bool
     {
         return $this->failed_login_attempts >= 5;
+    }
+
+    /**
+     * Relación con el rol (tabla roles)
+     */
+    public function userRole()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /**
+     * Verificar si el usuario tiene un permiso específico
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if (!$this->userRole) {
+            return false;
+        }
+
+        return $this->userRole->hasPermission($permission);
+    }
+
+    /**
+     * Verificar si el usuario tiene alguno de los permisos
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        if (!$this->userRole) {
+            return false;
+        }
+
+        return $this->userRole->hasAnyPermission($permissions);
+    }
+
+    /**
+     * Verificar si el usuario tiene todos los permisos
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        if (!$this->userRole) {
+            return false;
+        }
+
+        return $this->userRole->hasAllPermissions($permissions);
+    }
+
+    /**
+     * Obtener nombre del rol
+     */
+    public function getRoleName(): string
+    {
+        return $this->userRole ? $this->userRole->nombre : 'Sin rol';
     }
 }
