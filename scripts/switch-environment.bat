@@ -139,28 +139,37 @@ echo =======================================
 if "%env%"=="sandbox" (
     echo 🏖️  SANDBOX (Desarrollo^)
     echo   - Puerto API: 3000
-    echo   - Base de datos: Local (sandbox_db^)
+    echo   - Base de datos: Compareware (Schema: sandbox^)
+    echo   - Schema PostgreSQL: sandbox
     echo   - SSL: Deshabilitado
     echo   - Logging: Debug (7 días^)
     echo   - Monitoreo: Básico
     echo   - URL: http://sandbox.compareware.local
+    echo   - Mock APIs: Habilitado
 ) else if "%env%"=="staging" (
     echo 🎭 STAGING (Ambiental/Testing^)
     echo   - Puerto API: 3500
-    echo   - Base de datos: Cluster (staging-db.compareware.com^)
+    echo   - Base de datos: Compareware (Schema: staging^)
+    echo   - Schema PostgreSQL: staging
     echo   - SSL: Habilitado
     echo   - Logging: Info (14 días^)
     echo   - Monitoreo: Medio (Slack alerts^)
     echo   - URL: https://staging.compareware.com
+    echo   - Mock APIs: Deshabilitado
 ) else if "%env%"=="production" (
     echo 🚀 PRODUCTION (Productivo^)
     echo   - Puerto API: 4000
-    echo   - Base de datos: Master/Replica (prod-master.compareware.com^)
+    echo   - Base de datos: Compareware (Schema: public^)
+    echo   - Schema PostgreSQL: public
     echo   - SSL: Strict
     echo   - Logging: Error only (30 días^)
     echo   - Monitoreo: Completo (Slack + Sentry + SMS^)
     echo   - URL: https://compareware.com
+    echo   - Mock APIs: Deshabilitado
 )
+echo.
+echo IMPORTANTE: Todos los ambientes usan la MISMA base de datos
+echo pero con SCHEMAS diferentes de PostgreSQL para separar datos.
 echo.
 goto :eof
 

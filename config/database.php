@@ -104,8 +104,23 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'schema' => 'public',
-            'sslmode' => env('APP_ENV') === 'production' ? 'require' : 'prefer',
+            // Schema dinámico según ambiente - TODOS USAN LA MISMA BD
+            // sandbox -> schema 'sandbox'
+            // staging -> schema 'staging'
+            // production -> schema 'public'
+            'schema' => env('DB_SCHEMA', match(env('APP_ENV', 'production')) {
+                'sandbox' => 'sandbox',
+                'staging' => 'staging',
+                'production' => 'public',
+                default => 'public',
+            }),
+            'search_path' => env('DB_SCHEMA', match(env('APP_ENV', 'production')) {
+                'sandbox' => 'sandbox,public',
+                'staging' => 'staging,public',
+                'production' => 'public',
+                default => 'public',
+            }),
+            'sslmode' => env('DB_SSLMODE', env('APP_ENV') === 'production' ? 'require' : 'prefer'),
             'options' => [
                 PDO::ATTR_TIMEOUT => env('APP_ENV') === 'production' ? 10 : 30,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

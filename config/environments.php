@@ -21,6 +21,7 @@ return [
             'url' => 'http://sandbox.compareware.local',
             'debug' => true,
             'maintenance_mode' => false,
+            'db_schema' => 'sandbox',  // Schema de PostgreSQL
         ],
         'staging' => [
             'name' => 'Staging',
@@ -28,6 +29,7 @@ return [
             'url' => 'https://staging.compareware.com',
             'debug' => false,
             'maintenance_mode' => false,
+            'db_schema' => 'staging',  // Schema de PostgreSQL
         ],
         'production' => [
             'name' => 'Production',
@@ -35,6 +37,7 @@ return [
             'url' => 'https://compareware.com',
             'debug' => false,
             'maintenance_mode' => false,
+            'db_schema' => 'public',   // Schema de PostgreSQL
         ],
     ],
 
