@@ -1,0 +1,124 @@
+=== GUÍA: Dónde guardar las imágenes reales ===
+
+📁 RUTA COMPLETA:
+d:\Repositorio\Bdd Compareware\Compareware\storage\app\public\images\perifericos\
+
+📝 NOMBRES DE ARCHIVOS (usa estos EXACTOS):
+
+ID  | Producto                              | Nombre de archivo
+----|---------------------------------------|----------------------------------
+1   | Logitech G502 HERO                   | logitech-g502-hero-1.jpg
+2   | Razer DeathAdder V2                  | razer-deathadder-v2-2.jpg
+3   | Logitech MX Master 3                 | logitech-mx-master-3-3.jpg
+4   | Razer Viper Ultimate                 | razer-viper-ultimate-4.jpg
+5   | SteelSeries Rival 600                | steelseries-rival-600-5.jpg
+6   | Razer BlackWidow V3                  | razer-blackwidow-v3-6.jpg
+7   | Corsair K70 RGB                      | corsair-k70-rgb-7.jpg
+8   | Logitech G915 TKL                    | logitech-g915-tkl-8.jpg
+9   | HyperX Alloy FPS Pro                 | hyperx-alloy-fps-pro-9.jpg
+10  | SteelSeries Apex Pro                 | steelseries-apex-pro-10.jpg
+11  | HyperX Cloud II                      | hyperx-cloud-ii-11.jpg
+12  | Logitech G Pro X                     | logitech-g-pro-x-12.jpg
+13  | Razer BlackShark V2                  | razer-blackshark-v2-13.jpg
+14  | SteelSeries Arctis 7                 | steelseries-arctis-7-14.jpg
+15  | Corsair HS70 Pro                     | corsair-hs70-pro-15.jpg
+16  | Logitech C920                        | logitech-c920-16.jpg
+17  | Logitech Brio 4K                     | logitech-brio-4k-17.jpg
+18  | Razer Kiyo                           | razer-kiyo-18.jpg
+19  | HyperX QuadCast                      | hyperx-quadcast-19.jpg
+20  | Razer Seiren Mini                    | razer-seiren-mini-20.jpg
+21  | ASUS TUF Gaming VG27AQ               | asus-tuf-gaming-vg27aq-21.jpg
+22  | MSI Optix MAG274QRF                  | msi-optix-mag274qrf-22.jpg
+
+=== ESPECIFICACIONES ===
+
+✅ FORMATOS ACEPTADOS:
+   - .jpg / .jpeg (RECOMENDADO - mejor compresión)
+   - .png (si necesitas transparencia)
+   - .webp (más moderno pero menor compatibilidad)
+
+📐 RESOLUCIÓN RECOMENDADA:
+   - Mínimo: 800x600 píxeles
+   - Ideal: 1200x900 píxeles
+   - Máximo: 2000x1500 píxeles
+
+💾 TAMAÑO DE ARCHIVO:
+   - Mínimo: 30KB
+   - Ideal: 100KB - 300KB
+   - Máximo: 1MB (optimiza si es más grande)
+
+🎨 CALIDAD:
+   - Fondo blanco preferiblemente
+   - Producto centrado
+   - Buena iluminación
+   - Sin marcas de agua
+
+=== PASOS PARA AGREGAR IMÁGENES ===
+
+1. Descarga las imágenes reales de los productos
+2. Renómbralas con los nombres exactos de arriba
+3. Guárdalas en: storage\app\public\images\perifericos\
+4. Refresca el navegador (F5)
+5. ¡Las imágenes se mostrarán automáticamente!
+
+=== BÚSQUEDAS SUGERIDAS PARA GOOGLE/AMAZON ===
+
+Mouse:
+- "Logitech G502 HERO product image white background"
+- "Razer DeathAdder V2 official product photo"
+- "Logitech MX Master 3 high resolution image"
+
+Teclados:
+- "Razer BlackWidow V3 product photography"
+- "Corsair K70 RGB official image"
+- "Logitech G915 TKL product photo"
+
+Audífonos:
+- "HyperX Cloud II official product image"
+- "Razer BlackShark V2 white background"
+- "SteelSeries Arctis 7 product photo"
+
+Monitores:
+- "ASUS TUF Gaming VG27AQ product image"
+- "MSI Optix MAG274QRF official photo"
+
+Webcams:
+- "Logitech C920 product photography"
+- "Razer Kiyo official image"
+
+Micrófonos:
+- "HyperX QuadCast product photo"
+- "Razer Seiren Mini white background"
+
+=== SITIOS RECOMENDADOS PARA DESCARGAR ===
+
+1. Sitios oficiales de fabricantes:
+   - logitech.com/products
+   - razer.com/store
+   - steelseries.com/gaming-gear
+   - hyperxgaming.com/products
+   - corsair.com/products
+   - asus.com/products
+   - msi.com/products
+
+2. Tiendas con imágenes de alta calidad:
+   - Amazon (botón derecho > Ver imagen)
+   - Newegg.com
+   - BestBuy.com
+   - B&H Photo Video
+
+3. Bancos de imágenes:
+   - Unsplash.com
+   - Pexels.com
+
+=== NOTA IMPORTANTE ===
+
+Si cambias el formato (de .jpg a .png por ejemplo), debes actualizar la base de datos:
+
+UPDATE perifericos 
+SET imagen_mime_type = 'image/png'
+WHERE id = [ID_DEL_PRODUCTO];
+
+O ejecuta: php artisan amazon:sync-images --all
+
+¡Eso es todo! Las imágenes se cargarán automáticamente desde storage.

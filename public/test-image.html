@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Image</title>
+</head>
+<body>
+    <h1>Test de Imagen</h1>
+    
+    <h2>Imagen directa:</h2>
+    <img src="/storage/images/perifericos/logitech-g502-hero-1.jpg" style="max-width: 300px; border: 2px solid red;">
+    
+    <h2>Imagen con asset():</h2>
+    <img src="http://127.0.0.1:8000/storage/images/perifericos/logitech-g502-hero-1.jpg" style="max-width: 300px; border: 2px solid blue;">
+    
+    <script>
+        const img = document.querySelector('img');
+        img.onload = () => console.log('✅ Imagen cargada correctamente');
+        img.onerror = (e) => console.error('❌ Error cargando imagen:', e);
+    </script>
+</body>
+</html>
