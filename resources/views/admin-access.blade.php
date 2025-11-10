@@ -10,7 +10,7 @@
             <h1 class="text-4xl font-bold text-gray-900 mb-6">🔧 Área Administrativa</h1>
             
             @auth
-                @if(Auth::user()->role === 'admin')
+                @if(Auth::user()->isAdmin())
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
                         <p class="font-bold">✅ Acceso Autorizado</p>
                         <p>Bienvenido, {{ Auth::user()->name }}. Tienes permisos de administrador.</p>

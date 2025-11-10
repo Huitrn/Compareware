@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +22,7 @@ class AdminController extends Controller
      */
     private function checkAdminAccess()
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
             abort(403, 'No tienes permisos de administrador.');
         }
     }
@@ -33,11 +34,17 @@ class AdminController extends Controller
     {
         $this->checkAdminAccess();
         
+        $adminRole = Role::where('slug', 'administrador')->first();
+        $supervisorRole = Role::where('slug', 'supervisor')->first();
+        $developerRole = Role::where('slug', 'desarrollador')->first();
+        
         $stats = [
             'total_users' => User::count(),
-            'admins' => User::where('role', 'admin')->count(),
-            'users' => User::where('role', 'user')->count(),
-            'recent_users' => User::latest()->take(5)->get()
+            'admins' => User::where('role_id', $adminRole->id)->count(),
+            'supervisors' => User::where('role_id', $supervisorRole->id)->count(),
+            'developers' => User::where('role_id', $developerRole->id)->count(),
+            'users_without_role' => User::whereNull('role_id')->count(),
+            'recent_users' => User::with('userRole')->latest()->take(5)->get()
         ];
 
         return view('admin.dashboard', compact('stats'));
@@ -50,7 +57,7 @@ class AdminController extends Controller
     {
         $this->checkAdminAccess();
         
-        $query = User::query();
+        $query = User::with('userRole');
         
         // 🔍 BÚSQUEDA por nombre o email
         if ($request->filled('search')) {
@@ -62,8 +69,8 @@ class AdminController extends Controller
         }
         
         // 🎯 FILTRO por rol
-        if ($request->filled('role') && $request->get('role') !== 'all') {
-            $query->where('role', $request->get('role'));
+        if ($request->filled('role_id') && $request->get('role_id') !== 'all') {
+            $query->where('role_id', $request->get('role_id'));
         }
         
         // 📊 FILTRO por estado
@@ -77,10 +84,13 @@ class AdminController extends Controller
         
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
         
+        // Cargar todos los roles para el filtro
+        $roles = Role::all();
+        
         // Mantener parámetros de búsqueda en la paginación
         $users->appends($request->query());
         
-        return view('admin.users', compact('users'));
+        return view('admin.users', compact('users', 'roles'));
     }
 
     /**
@@ -88,20 +98,42 @@ class AdminController extends Controller
      */
     public function changeRole(Request $request, User $user)
     {
+        // Solo administradores pueden cambiar roles
+        if (!Auth::user()->isAdmin()) {
+            return back()->with('error', 'Solo los administradores pueden cambiar roles de usuario.');
+        }
+
         $request->validate([
-            'role' => 'required|in:admin,user,moderator'
+            'role_id' => 'nullable|exists:roles,id'
         ]);
 
+        // Obtener el rol de administrador
+        $adminRole = Role::where('slug', 'administrador')->first();
+
         // No permitir que un admin se quite a sí mismo el rol de admin
-        if ($user->id === Auth::id() && $request->role !== 'admin') {
+        if ($user->id === Auth::id() && $request->role_id != $adminRole->id) {
             return back()->with('error', 'No puedes cambiar tu propio rol de administrador.');
         }
 
-        $oldRole = $user->role;
-        $user->role = $request->role;
-        $user->save();
+        // No permitir eliminar el último administrador
+        if ($user->isAdmin() && (!$request->role_id || $request->role_id != $adminRole->id)) {
+            $totalAdmins = User::where('role_id', $adminRole->id)->count();
+            if ($totalAdmins <= 1) {
+                return back()->with('error', 'No puedes cambiar el rol del último administrador del sistema.');
+            }
+        }
 
-        return back()->with('success', "Rol de {$user->name} cambiado de '{$oldRole}' a '{$request->role}' exitosamente.");
+        $oldRoleName = $user->userRole ? $user->userRole->nombre : 'Sin rol';
+        
+        // Actualizar role_id
+        $user->role_id = $request->role_id;
+        $user->save();
+        
+        // Recargar la relación para obtener el nuevo rol
+        $user->load('userRole');
+        $newRoleName = $user->userRole ? $user->userRole->nombre : 'Sin rol';
+
+        return back()->with('success', "✅ Rol de {$user->name} cambiado de '{$oldRoleName}' a '{$newRoleName}' exitosamente.");
     }
 
     /**
@@ -142,8 +174,9 @@ class AdminController extends Controller
         }
         
         // Verificar que no sea el único admin
-        if ($user->role === 'admin') {
-            $totalAdmins = User::where('role', 'admin')->count();
+        if ($user->isAdmin()) {
+            $adminRole = Role::where('slug', 'administrador')->first();
+            $totalAdmins = User::where('role_id', $adminRole->id)->count();
             if ($totalAdmins <= 1) {
                 return back()->with('error', 'No puedes eliminar al único administrador del sistema.');
             }
