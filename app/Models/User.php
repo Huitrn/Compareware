@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -327,5 +328,13 @@ class User extends Authenticatable
     public function getRoleName(): string
     {
         return $this->userRole ? $this->userRole->nombre : 'Sin rol';
+    }
+
+    /**
+     * Enviar notificación de restablecimiento de contraseña
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

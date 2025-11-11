@@ -7,6 +7,8 @@ use App\Http\Controllers\ComparadoraController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ComparacionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\EnvironmentTestController;
 use App\Http\Controllers\YouTubeController;
 use App\Http\Controllers\CurrencyController;
@@ -97,15 +99,26 @@ Route::get('/registro', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/perfil', function () {
-    return view('perfil');
-})->name('perfil')->middleware('auth');
+// Rutas de recuperación de contraseña
+Route::get('/password/reset', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
 
-Route::get('/editar', function () {
-    return view('editar');
-})->name('editar')->middleware('auth');
+// Rutas de perfil
+Route::middleware('auth')->group(function () {
+    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
+    Route::get('/editar', [PerfilController::class, 'editar'])->name('perfil.editar');
+    Route::post('/perfil/actualizar', [PerfilController::class, 'actualizar'])->name('perfil.actualizar');
+    Route::post('/perfil/password', [PerfilController::class, 'actualizarPassword'])->name('perfil.password');
+});
+
 Route::get('/marcas', function () {
-    return view('marcas');
+    $marcas = \App\Models\Marca::with(['perifericos.categoria'])
+        ->withCount('perifericos')
+        ->orderBy('nombre')
+        ->get();
+    return view('marcas', compact('marcas'));
 })->name('marcas');
 
 Route::post('/test-web', function () {

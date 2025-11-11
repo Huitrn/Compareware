@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Periferico;
 use App\Models\Comparacion;
+use App\Models\ComparisonHistory;
 
 class ComparacionController extends Controller
 {
@@ -57,6 +58,20 @@ class ComparacionController extends Controller
         })->orWhere(function($q) use ($id1, $id2) {
             $q->where('periferico1_id', $id2)->where('periferico2_id', $id1);
         })->first();
+
+        // Guardar en el historial solo si el usuario está autenticado Y ambos periféricos son de la misma categoría
+        if (auth()->check() && $periferico1->categoria_id === $periferico2->categoria_id) {
+            ComparisonHistory::create([
+                'user_id' => auth()->id(),
+                'periferico1_id' => $id1,
+                'periferico2_id' => $id2,
+                'comparison_data' => [
+                    'ganador' => $comparacion ? $comparacion->ganador : null,
+                    'descripcion' => $comparacion ? $comparacion->descripcion : null,
+                ],
+                'ip_address' => $request->ip(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,

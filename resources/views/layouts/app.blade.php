@@ -51,7 +51,9 @@
 
                         @auth
                             <!-- Usuario autenticado -->
-                            <span class="text-[#0d141c] dark:text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
+                            <a href="{{ route('perfil') }}" class="text-[#0d141c] dark:text-white text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer">
+                                Hola, {{ Auth::user()->name }}
+                            </a>
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
                                 <button
@@ -86,12 +88,6 @@
                                     >
                                         <span class="truncate">🎯 Área Admin</span>
                                     </a>
-                                    <a
-                                        href="{{ route('panel.admin') }}"
-                                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-indigo-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-indigo-700 transition-colors"
-                                    >
-                                        <span class="truncate">🚀 Directo</span>
-                                    </a>
                                 </div>
                             @endif
                         @endauth
@@ -108,12 +104,7 @@
             <footer class="flex justify-center">
                 <div class="flex max-w-[960px] flex-1 flex-col">
                     <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
-                        <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
-                            <a class="text-[#49739c] text-base font-normal leading-normal min-w-40" href="#">Política de privacidad</a>
-                            <a class="text-[#49739c] text-base font-normal leading-normal min-w-40" href="#">Términos de servicio</a>
-                            <a class="text-[#49739c] text-base font-normal leading-normal min-w-40" href="#">Contacto</a>
-                        </div>
-                        <p class="text-[#49739c] text-base font-normal leading-normal">@2024 CompareWare. Todos los derechos reservados.</p>
+                        <p class="text-[#49739c] dark:text-gray-400 text-base font-normal leading-normal">@2024 CompareWare. Todos los derechos reservados.</p>
                     </footer>
                 </div>
             </footer>

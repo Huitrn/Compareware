@@ -49,7 +49,9 @@
 
               @auth
                 <!-- Usuario autenticado -->
-                <span class="text-[#0d141c] dark:text-white text-sm font-medium">Hola, {{ Auth::user()->name }}</span>
+                <a href="{{ route('perfil') }}" class="text-[#0d141c] dark:text-white text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer">
+                  Hola, {{ Auth::user()->name }}
+                </a>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                   @csrf
                   <button
@@ -83,12 +85,6 @@
                       class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-purple-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-purple-700 transition-colors"
                     >
                       <span class="truncate">🎯 Área Admin</span>
-                    </a>
-                    <a
-                      href="{{ route('panel.admin') }}"
-                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-indigo-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-indigo-700 transition-colors"
-                    >
-                      <span class="truncate">🚀 Directo</span>
                     </a>
                   </div>
                 @endif
