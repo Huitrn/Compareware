@@ -10,18 +10,15 @@ use Illuminate\Support\Facades\DB;
 class SupervisorController extends Controller
 {
     /**
-     * Constructor - Aplica middleware de rol
-     */
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:supervisor']);
-    }
-
-    /**
      * Panel principal del supervisor
      */
     public function dashboard()
     {
+        // Verificar que sea Supervisor o Admin
+        if (!auth()->user()->isSupervisor() && !auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para acceder al panel de supervisor.');
+        }
+
         $stats = [
             'total_products' => Periferico::count(),
             'pending_approval' => Periferico::where('estado', 'pendiente')->count(),
@@ -37,11 +34,16 @@ class SupervisorController extends Controller
      */
     public function products()
     {
+        // Verificar permiso para gestionar productos
+        if (!auth()->user()->canManageProducts()) {
+            abort(403, 'No tienes permisos para gestionar productos.');
+        }
+
         $products = Periferico::with(['marca', 'categoria'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('supervisor.products.index', compact('products'));
+        return view('supervisor.products', compact('products'));
     }
 
     /**
@@ -87,15 +89,60 @@ class SupervisorController extends Controller
      */
     public function users()
     {
-        if (!auth()->user()->hasPermission('view_users')) {
-            abort(403, 'No tiene permiso para ver usuarios.');
+        // Verificar permiso para gestionar usuarios
+        if (!auth()->user()->canManageUsers()) {
+            abort(403, 'No tienes permisos para gestionar usuarios.');
         }
 
-        $users = User::with('role')
+        $users = User::with('userRole')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('supervisor.users.index', compact('users'));
+        // Indicar que es vista de supervisor (sin opciones de eliminar/cambiar rol)
+        $isSupervisor = auth()->user()->isSupervisor();
+
+        return view('supervisor.users', compact('users', 'isSupervisor'));
+    }
+
+    /**
+     * Ver detalle de usuario
+     */
+    public function userDetails($id)
+    {
+        if (!auth()->user()->canManageUsers()) {
+            abort(403, 'No tienes permisos para ver usuarios.');
+        }
+
+        $user = User::with('userRole')->findOrFail($id);
+        $isSupervisor = auth()->user()->isSupervisor();
+
+        return view('supervisor.user-details', compact('user', 'isSupervisor'));
+    }
+
+    /**
+     * Editar perfil de usuario (solo datos básicos, no rol ni permisos)
+     */
+    public function updateUser(Request $request, $id)
+    {
+        if (!auth()->user()->canManageUsers()) {
+            abort(403, 'No tienes permisos para editar usuarios.');
+        }
+
+        // Supervisor NO puede cambiar roles
+        if (auth()->user()->isSupervisor() && $request->has('role_id')) {
+            abort(403, 'Los supervisores no pueden cambiar roles de usuario.');
+        }
+
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->back()->with('success', 'Usuario actualizado exitosamente.');
     }
 
     /**

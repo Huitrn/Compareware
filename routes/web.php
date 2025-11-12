@@ -186,6 +186,30 @@ Route::get('/admin-test', function() {
            'Roles: ' . $users->pluck('role')->unique()->implode(', ');
 })->name('admin.test');
 
+// 👨‍💻 RUTAS DE DESARROLLADOR
+Route::prefix('developer')->middleware('auth')->name('developer.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\DeveloperController::class, 'dashboard'])->name('dashboard');
+    Route::get('/logs', [\App\Http\Controllers\DeveloperController::class, 'logs'])->name('logs');
+    Route::post('/clear-cache', [\App\Http\Controllers\DeveloperController::class, 'clearCache'])->name('clear-cache');
+    Route::get('/routes', [\App\Http\Controllers\DeveloperController::class, 'routes'])->name('routes');
+    Route::get('/config', [\App\Http\Controllers\DeveloperController::class, 'config'])->name('config');
+});
+
+// 👨‍🏫 RUTAS DE SUPERVISOR
+Route::prefix('supervisor')->middleware('auth')->name('supervisor.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\SupervisorController::class, 'dashboard'])->name('dashboard');
+    
+    // Gestión de Usuarios (solo ver y editar perfil básico)
+    Route::get('/users', [\App\Http\Controllers\SupervisorController::class, 'users'])->name('users');
+    Route::get('/users/{user}', [\App\Http\Controllers\SupervisorController::class, 'userDetails'])->name('user.details');
+    Route::patch('/users/{user}', [\App\Http\Controllers\SupervisorController::class, 'updateUser'])->name('user.update');
+    
+    // Gestión de Productos (aprobar, editar, rechazar)
+    Route::get('/products', [\App\Http\Controllers\SupervisorController::class, 'products'])->name('products');
+    Route::post('/products/{id}/approve', [\App\Http\Controllers\SupervisorController::class, 'approveProduct'])->name('product.approve');
+        Route::post('/products/{id}/reject', [\App\Http\Controllers\SupervisorController::class, 'rejectProduct'])->name('product.reject');
+});
+
 // 👨‍💼 RUTAS DE ADMINISTRACIÓN (SIMPLIFICADAS)
 Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/dashboard', function() {
@@ -198,6 +222,53 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/users', [\App\Http\Controllers\AdminController::class, 'users'])->name('users');
     Route::get('/users/{user}', [\App\Http\Controllers\AdminController::class, 'userDetails'])->name('user.details');
     Route::patch('/users/{user}/role', [\App\Http\Controllers\AdminController::class, 'changeRole'])->name('user.role');
+    
+    // Gestión de Periféricos
+    Route::get('/perifericos', function() {
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Acceso denegado');
+        }
+        return view('admin.perifericos');
+    })->name('perifericos');
+    Route::patch('/users/{user}/status', [\App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('user.status');
+    Route::delete('/users/{user}', [\App\Http\Controllers\AdminController::class, 'deleteUser'])->name('user.delete');
+});
+
+// Ruta de prueba para validación de seguridad
+Route::get('/test-comparacion', [App\Http\Controllers\TestComparacionController::class, 'comparar']);
+
+// 🧪 RUTA DE PRUEBA PARA COMPARACIÓN
+Route::get('/debug-comparacion', function() {
+    $perifericos = DB::table('perifericos')->select('id', 'nombre')->get();
+    $comparaciones = DB::table('comparaciones')->count();
+    
+    return response()->json([
+        'perifericos' => $perifericos,
+        'total_comparaciones' => $comparaciones,
+        'test_url' => url('/comparar-perifericos?periferico1=1&periferico2=2')
+    ]);
+});
+
+// 👨‍💼 RUTAS DE ADMINISTRACIÓN (SIMPLIFICADAS)
+Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+    Route::get('/dashboard', function() {
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Acceso denegado');
+        }
+        // Redireccionar directamente a gestión de usuarios
+        return redirect()->route('admin.users');
+    })->name('dashboard');
+    Route::get('/users', [\App\Http\Controllers\AdminController::class, 'users'])->name('users');
+    Route::get('/users/{user}', [\App\Http\Controllers\AdminController::class, 'userDetails'])->name('user.details');
+    Route::patch('/users/{user}/role', [\App\Http\Controllers\AdminController::class, 'changeRole'])->name('user.role');
+    
+    // Gestión de Periféricos
+    Route::get('/perifericos', function() {
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Acceso denegado');
+        }
+        return view('admin.perifericos');
+    })->name('perifericos');
     Route::patch('/users/{user}/status', [\App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('user.status');
     Route::delete('/users/{user}', [\App\Http\Controllers\AdminController::class, 'deleteUser'])->name('user.delete');
 });

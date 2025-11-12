@@ -192,22 +192,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar si el usuario es supervisor
-     */
-    public function isSupervisor(): bool
-    {
-        return $this->userRole && $this->userRole->slug === 'supervisor';
-    }
-
-    /**
-     * Verificar si el usuario es desarrollador
-     */
-    public function isDeveloper(): bool
-    {
-        return $this->userRole && $this->userRole->slug === 'desarrollador';
-    }
-
-    /**
      * Verificar si el usuario puede realizar una acción
      */
     public function can($ability, $arguments = []): bool
@@ -328,6 +312,149 @@ class User extends Authenticatable
     public function getRoleName(): string
     {
         return $this->userRole ? $this->userRole->nombre : 'Sin rol';
+    }
+
+    /**
+     * Verificar si es Supervisor
+     */
+    public function isSupervisor(): bool
+    {
+        $roleName = strtolower($this->getRoleName());
+        return in_array($roleName, ['supervisor', 'supervisión']);
+    }
+
+    /**
+     * Verificar si es Desarrollador
+     */
+    public function isDeveloper(): bool
+    {
+        $roleName = strtolower($this->getRoleName());
+        return in_array($roleName, ['developer', 'desarrollador', 'dev']);
+    }
+
+    /**
+     * Verificar si tiene acceso a gestión de usuarios
+     * Admin: acceso total | Supervisor: solo ver/editar | Developer: sin acceso
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin() || $this->isSupervisor();
+    }
+
+    /**
+     * Verificar si puede eliminar usuarios (solo Admin)
+     */
+    public function canDeleteUsers(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verificar si puede cambiar roles (solo Admin)
+     */
+    public function canChangeRoles(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verificar si tiene acceso a gestión de productos
+     * Admin: acceso total | Supervisor: aprobar/editar | Developer: sin acceso
+     */
+    public function canManageProducts(): bool
+    {
+        return $this->isAdmin() || $this->isSupervisor();
+    }
+
+    /**
+     * Verificar si puede eliminar productos (solo Admin)
+     */
+    public function canDeleteProducts(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Verificar si tiene acceso a herramientas de desarrollo
+     * Admin: sí | Supervisor: no | Developer: sí
+     */
+    public function canAccessDevTools(): bool
+    {
+        return $this->isAdmin() || $this->isDeveloper();
+    }
+
+    /**
+     * Verificar si puede ver estadísticas y reportes
+     * Admin: sí | Supervisor: sí | Developer: limitado
+     */
+    public function canViewReports(): bool
+    {
+        return $this->isAdmin() || $this->isSupervisor();
+    }
+
+    /**
+     * Verificar si puede gestionar configuraciones del sistema (solo Admin)
+     */
+    public function canManageSettings(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Obtener permisos detallados del usuario según su rol
+     */
+    public function getDetailedPermissions(): array
+    {
+        if ($this->isAdmin()) {
+            return [
+                'users' => ['view', 'create', 'edit', 'delete', 'change_role', 'suspend'],
+                'products' => ['view', 'create', 'edit', 'delete', 'approve'],
+                'categories' => ['view', 'create', 'edit', 'delete'],
+                'brands' => ['view', 'create', 'edit', 'delete'],
+                'settings' => ['view', 'edit'],
+                'logs' => ['view', 'clear'],
+                'reports' => ['view', 'export'],
+                'dev_tools' => ['access', 'cache', 'debug']
+            ];
+        }
+
+        if ($this->isSupervisor()) {
+            return [
+                'users' => ['view', 'edit'],
+                'products' => ['view', 'edit', 'approve'],
+                'categories' => ['view', 'create', 'edit'],
+                'brands' => ['view', 'create', 'edit'],
+                'settings' => ['view'],
+                'logs' => ['view'],
+                'reports' => ['view', 'export'],
+                'dev_tools' => []
+            ];
+        }
+
+        if ($this->isDeveloper()) {
+            return [
+                'users' => [],
+                'products' => [],
+                'categories' => [],
+                'brands' => [],
+                'settings' => ['view'],
+                'logs' => ['view', 'clear'],
+                'reports' => ['view'],
+                'dev_tools' => ['access', 'cache', 'debug', 'api_test']
+            ];
+        }
+
+        // Usuario normal
+        return [
+            'users' => [],
+            'products' => ['view'],
+            'categories' => ['view'],
+            'brands' => ['view'],
+            'settings' => [],
+            'logs' => [],
+            'reports' => [],
+            'dev_tools' => []
+        ];
     }
 
     /**

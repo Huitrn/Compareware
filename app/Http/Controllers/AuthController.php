@@ -298,7 +298,10 @@ class AuthController extends Controller
             auth()->login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
-            return redirect()->intended(route('home'))->with('success', '¡Bienvenido de vuelta!');
+            // Redirigir según el rol del usuario
+            $redirectRoute = $this->getRedirectRoute($user);
+            
+            return redirect()->intended($redirectRoute)->with('success', '¡Bienvenido de vuelta!');
 
         } catch (\Exception $e) {
             $this->logSecurityEvent('AUTHENTICATION_ERROR', [
@@ -415,6 +418,35 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // Si falla el logging de seguridad, usar log normal como fallback
             \Log::error("Security logging failed: " . $e->getMessage(), $data);
+        }
+    }
+
+    /**
+     * Obtener ruta de redirección según el rol del usuario
+     */
+    private function getRedirectRoute(User $user): string
+    {
+        // Obtener el nombre del rol
+        $roleName = $user->getRoleName();
+
+        // Redirigir según el rol
+        switch (strtolower($roleName)) {
+            case 'admin':
+            case 'administrador':
+                return route('admin.users');
+                
+            case 'supervisor':
+            case 'supervisión':
+                return route('supervisor.dashboard');
+                
+            case 'developer':
+            case 'desarrollador':
+                return route('developer.dashboard');
+                
+            case 'user':
+            case 'usuario':
+            default:
+                return route('home');
         }
     }
 }

@@ -8,22 +8,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use App\Models\SystemChange;
+use App\Events\SystemChangeEvent;
 
 class DeveloperController extends Controller
 {
-    /**
-     * Constructor - Aplica middleware de rol
-     */
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:desarrollador']);
-    }
-
     /**
      * Panel principal del desarrollador
      */
     public function dashboard()
     {
+        // Verificar que el usuario sea desarrollador o admin
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (!in_array($roleName, ['desarrollador', 'developer', 'admin', 'administrador'])) {
+            abort(403, 'No tienes permisos para acceder al panel de desarrollador.');
+        }
+
         $info = [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
@@ -41,8 +43,12 @@ class DeveloperController extends Controller
      */
     public function logs(Request $request)
     {
-        if (!auth()->user()->hasPermission('view_logs')) {
-            abort(403, 'No tiene permiso para ver logs.');
+        // Verificar que el usuario sea desarrollador o admin
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (!in_array($roleName, ['desarrollador', 'developer', 'admin', 'administrador'])) {
+            abort(403, 'No tienes permisos para acceder.');
         }
 
         $logFile = storage_path('logs/laravel.log');
@@ -56,7 +62,8 @@ class DeveloperController extends Controller
             $logs = array_slice(array_reverse($lines), 0, 100);
         }
 
-        return view('developer.logs', compact('logs'));
+        // Devolver vista simple con los logs
+        return response()->view('developer.logs-simple', compact('logs'));
     }
 
     /**
@@ -99,8 +106,12 @@ class DeveloperController extends Controller
      */
     public function clearCache(Request $request)
     {
-        if (!auth()->user()->hasPermission('manage_cache')) {
-            abort(403);
+        // Verificar que el usuario sea desarrollador o admin
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (!in_array($roleName, ['desarrollador', 'developer', 'admin', 'administrador'])) {
+            abort(403, 'No tienes permisos para acceder.');
         }
 
         $type = $request->input('type', 'all');
@@ -133,6 +144,12 @@ class DeveloperController extends Controller
         Log::info('Cache cleared by developer', [
             'user_id' => auth()->id(),
             'type' => $type
+        ]);
+
+        // Notificar a administradores sobre esta acción
+        $this->notifyAdmins('clear_cache', 'Cache', null, [
+            'type' => $type,
+            'message' => $message
         ]);
 
         return redirect()->back()->with('success', $message);
@@ -301,6 +318,139 @@ class DeveloperController extends Controller
             'command' => $request->command
         ]);
 
-        return response()->json(['output' => $output]);
+        return response()->json(['success' => true, 'output' => $output]);
+    }
+
+    /**
+     * Ver rutas del sistema
+     */
+    public function routes()
+    {
+        // Verificar que el usuario sea desarrollador o admin
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (!in_array($roleName, ['desarrollador', 'developer', 'admin', 'administrador'])) {
+            abort(403, 'No tienes permisos para acceder.');
+        }
+
+        Artisan::call('route:list', ['--json' => true]);
+        $output = Artisan::output();
+        $routes = json_decode($output, true) ?: [];
+
+        // Devolver JSON para evitar crear vista compleja
+        return response()->json([
+            'success' => true,
+            'total_routes' => count($routes),
+            'routes' => array_slice($routes, 0, 50), // Primeras 50 rutas
+            'message' => 'Para ver todas las rutas, ejecuta: php artisan route:list'
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Ver configuración del sistema
+     */
+    public function config()
+    {
+        // Verificar que el usuario sea desarrollador o admin
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (!in_array($roleName, ['desarrollador', 'developer', 'admin', 'administrador'])) {
+            abort(403, 'No tienes permisos para acceder.');
+        }
+
+        $config = [
+            'app' => [
+                'name' => config('app.name'),
+                'env' => config('app.env'),
+                'debug' => config('app.debug'),
+                'url' => config('app.url'),
+            ],
+            'database' => [
+                'connection' => config('database.default'),
+                'host' => config('database.connections.pgsql.host'),
+                'database' => config('database.connections.pgsql.database'),
+            ],
+            'cache' => [
+                'driver' => config('cache.default'),
+            ],
+            'queue' => [
+                'driver' => config('queue.default'),
+            ],
+            'mail' => [
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'from' => config('mail.from.address'),
+            ],
+        ];
+
+        // Devolver JSON para evitar crear vista compleja
+        return response()->json([
+            'success' => true,
+            'config' => $config,
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version()
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Notificar a administradores sobre acciones del desarrollador
+     */
+    protected function notifyAdmins($action, $modelType, $modelId, $changes = [])
+    {
+        // Solo notificar si el usuario es desarrollador (no admin)
+        $user = auth()->user();
+        $roleName = strtolower($user->getRoleName());
+        
+        if (in_array($roleName, ['admin', 'administrador'])) {
+            // Los admins no necesitan notificarse a sí mismos
+            return;
+        }
+
+        try {
+            // Crear registro del cambio
+            $systemChange = SystemChange::create([
+                'user_id' => $user->id,
+                'action_type' => $action,
+                'model_type' => $modelType,
+                'model_id' => $modelId,
+                'description' => $this->getActionDescription($action, $modelType, $modelId),
+                'changes' => $changes,
+                'ip_address' => request()->ip(),
+            ]);
+
+            // Disparar evento para notificar a administradores
+            event(new SystemChangeEvent($systemChange));
+
+            Log::info('Admin notification sent for developer action', [
+                'action' => $action,
+                'model' => $modelType,
+                'developer' => $user->name
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify admins about developer action', [
+                'error' => $e->getMessage(),
+                'action' => $action
+            ]);
+        }
+    }
+
+    /**
+     * Obtener descripción legible de la acción
+     */
+    protected function getActionDescription($action, $modelType, $modelId)
+    {
+        $descriptions = [
+            'clear_cache' => "Limpieza de caché: {$modelId}",
+            'view_logs' => "Visualización de logs del sistema",
+            'view_routes' => "Consulta de rutas del sistema",
+            'view_config' => "Consulta de configuración del sistema",
+            'test_api' => "Prueba de API: {$modelId}",
+        ];
+
+        return $descriptions[$action] ?? "Acción de desarrollador: {$action} en {$modelType}";
     }
 }
+
